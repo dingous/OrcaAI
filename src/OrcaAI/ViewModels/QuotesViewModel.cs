@@ -21,6 +21,10 @@ public sealed class QuotesViewModel : BaseViewModel
 
     public ObservableCollection<Quote> Items { get; } = [];
     public ICommand NewCommand { get; }
+    public string EmptyTitle => string.IsNullOrWhiteSpace(Search) ? "Nenhum orçamento ainda" : "Nenhum orçamento encontrado";
+    public string EmptyMessage => string.IsNullOrWhiteSpace(Search)
+        ? "Crie o primeiro orçamento e compartilhe em PDF com seu cliente."
+        : "Tente buscar por outro número, cliente ou serviço.";
 
     public string Search
     {
@@ -116,5 +120,8 @@ public sealed class QuotesViewModel : BaseViewModel
         Items.Clear();
         foreach (var item in filtered)
             Items.Add(item);
+
+        OnPropertyChanged(nameof(EmptyTitle));
+        OnPropertyChanged(nameof(EmptyMessage));
     }
 }

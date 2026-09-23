@@ -21,6 +21,10 @@ public sealed class ClientsViewModel : BaseViewModel
 
     public ObservableCollection<Client> Items { get; } = [];
     public ICommand AddCommand { get; }
+    public string EmptyTitle => string.IsNullOrWhiteSpace(Search) ? "Nenhum cliente ainda" : "Nenhum cliente encontrado";
+    public string EmptyMessage => string.IsNullOrWhiteSpace(Search)
+        ? "Cadastre o primeiro cliente para acelerar seus próximos orçamentos."
+        : "Tente outro nome, telefone ou e-mail.";
 
     public string Search
     {
@@ -116,5 +120,8 @@ public sealed class ClientsViewModel : BaseViewModel
         Items.Clear();
         foreach (var item in filtered)
             Items.Add(item);
+
+        OnPropertyChanged(nameof(EmptyTitle));
+        OnPropertyChanged(nameof(EmptyMessage));
     }
 }

@@ -23,8 +23,8 @@
             <CollectionView.EmptyView>
                 <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                     <VerticalStackLayout Padding="10" Spacing="8">
-                        <Label Text="Nenhum orçamento" HorizontalTextAlignment="Center" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
-                        <Label Text="Crie o primeiro orçamento e compartilhe em PDF com seu cliente." HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
+                        <Label Text="{Binding EmptyTitle}" HorizontalTextAlignment="Center" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                        <Label Text="{Binding EmptyMessage}" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
                     </VerticalStackLayout>
                 </Border>
             </CollectionView.EmptyView>
@@ -44,10 +44,10 @@
                                 <Label Text="{Binding ClientDisplayName, StringFormat='Cliente: {0}'}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
                                 <Label Text="{Binding Total, StringFormat='Total: R$ {0:N2}'}" TextColor="{StaticResource AccentDark}" FontAttributes="Bold" />
                             </VerticalStackLayout>
-                            <HorizontalStackLayout Grid.Row="1" Spacing="6">
+                            <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="6">
                                 <Button Text="Abrir" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="40" />
-                                <Button Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" Style="{StaticResource DangerButton}" Padding="12,8" MinimumHeightRequest="40" />
-                            </HorizontalStackLayout>
+                                <Button Grid.Column="1" Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" Style="{StaticResource DangerButton}" Padding="12,8" MinimumHeightRequest="40" />
+                            </Grid>
                         </Grid>
                     </Border>
                 </DataTemplate>
