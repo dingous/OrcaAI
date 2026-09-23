@@ -120,7 +120,7 @@ public sealed class SettingsViewModel : BaseViewModel
         }
 
         if (!string.IsNullOrWhiteSpace(Email)
-            && !Email.Contains('@', StringComparison.Ordinal))
+            && !Email.Contains('@'))
         {
             SetError("Informe um e-mail válido ou deixe o campo em branco.");
             return;
