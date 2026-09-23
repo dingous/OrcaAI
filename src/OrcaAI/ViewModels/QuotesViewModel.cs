@@ -16,7 +16,7 @@ public sealed class QuotesViewModel : BaseViewModel
     public QuotesViewModel(IOrcaDataStore store)
     {
         _store = store;
-        NewCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(QuoteEditorPage)));
+        NewCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(QuoteEditorPage)), () => !IsBusy);
     }
 
     public ObservableCollection<Quote> Items { get; } = [];
@@ -38,6 +38,7 @@ public sealed class QuotesViewModel : BaseViewModel
             return;
 
         IsBusy = true;
+        RaiseActionStates();
 
         try
         {
@@ -52,11 +53,14 @@ public sealed class QuotesViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            RaiseActionStates();
         }
     }
 
     public Task EditAsync(Quote quote) =>
-        NavigateAsync($"{nameof(QuoteEditorPage)}?quoteId={quote.Id}");
+        IsBusy
+            ? Task.CompletedTask
+            : NavigateAsync($"{nameof(QuoteEditorPage)}?quoteId={quote.Id}");
 
     public async Task DeleteAsync(Quote quote)
     {
@@ -64,6 +68,7 @@ public sealed class QuotesViewModel : BaseViewModel
             return;
 
         IsBusy = true;
+        RaiseActionStates();
 
         try
         {
@@ -79,8 +84,12 @@ public sealed class QuotesViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            RaiseActionStates();
         }
     }
+
+    private void RaiseActionStates() =>
+        (NewCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
 
     private async Task NavigateAsync(string route)
     {
