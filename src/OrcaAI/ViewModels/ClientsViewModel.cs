@@ -16,7 +16,7 @@ public sealed class ClientsViewModel : BaseViewModel
     public ClientsViewModel(IOrcaDataStore store)
     {
         _store = store;
-        AddCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(ClientFormPage)));
+        AddCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(ClientFormPage)), () => !IsBusy);
     }
 
     public ObservableCollection<Client> Items { get; } = [];
@@ -38,6 +38,7 @@ public sealed class ClientsViewModel : BaseViewModel
             return;
 
         IsBusy = true;
+        RaiseActionStates();
 
         try
         {
@@ -52,11 +53,14 @@ public sealed class ClientsViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            RaiseActionStates();
         }
     }
 
     public Task EditAsync(Client client) =>
-        NavigateAsync($"{nameof(ClientFormPage)}?clientId={client.Id}");
+        IsBusy
+            ? Task.CompletedTask
+            : NavigateAsync($"{nameof(ClientFormPage)}?clientId={client.Id}");
 
     public async Task DeleteAsync(Client client)
     {
@@ -64,6 +68,7 @@ public sealed class ClientsViewModel : BaseViewModel
             return;
 
         IsBusy = true;
+        RaiseActionStates();
 
         try
         {
@@ -79,8 +84,12 @@ public sealed class ClientsViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            RaiseActionStates();
         }
     }
+
+    private void RaiseActionStates() =>
+        (AddCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
 
     private async Task NavigateAsync(string route)
     {
