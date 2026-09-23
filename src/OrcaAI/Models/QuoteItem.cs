@@ -36,5 +36,16 @@ public sealed class QuoteItem : ObservableObject
     }
 
     [JsonIgnore]
-    public decimal Total => Quantity * UnitPrice;
+    public decimal Total
+    {
+        get
+        {
+            if (Quantity <= 0 || UnitPrice <= 0)
+                return 0;
+
+            return Quantity > decimal.MaxValue / UnitPrice
+                ? decimal.MaxValue
+                : Quantity * UnitPrice;
+        }
+    }
 }

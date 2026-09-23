@@ -67,8 +67,38 @@ public sealed class QuoteEditorViewModel : BaseViewModel
     }
 
     public QuoteStatusOption? SelectedStatus { get => _selectedStatus; set => SetProperty(ref _selectedStatus, value); }
-    public string SubtotalText => Items.Sum(x => x.Total).ToString("C", CultureInfo.GetCultureInfo("pt-BR"));
-    public string TotalText => Math.Max(0, Items.Sum(x => x.Total) - Discount).ToString("C", CultureInfo.GetCultureInfo("pt-BR"));
+    public string SubtotalText => CurrentSubtotal.ToString("C", CultureInfo.GetCultureInfo("pt-BR"));
+    public string TotalText
+    {
+        get
+        {
+            var subtotal = CurrentSubtotal;
+            var discount = Math.Max(0, Discount);
+            var total = discount >= subtotal ? 0 : subtotal - discount;
+            return total.ToString("C", CultureInfo.GetCultureInfo("pt-BR"));
+        }
+    }
+
+    private decimal CurrentSubtotal
+    {
+        get
+        {
+            var total = 0m;
+            foreach (var item in Items)
+            {
+                var value = item.Total;
+                if (value <= 0)
+                    continue;
+
+                if (total > decimal.MaxValue - value)
+                    return decimal.MaxValue;
+
+                total += value;
+            }
+
+            return total;
+        }
+    }
 
     public ICommand GenerateDraftCommand { get; }
     public ICommand AddItemCommand { get; }
@@ -211,6 +241,12 @@ public sealed class QuoteEditorViewModel : BaseViewModel
             return null;
         }
 
+        if (Items.Any(x => x.UnitPrice > 0 && x.Quantity > decimal.MaxValue / x.UnitPrice))
+        {
+            ErrorMessage = "Um dos itens possui quantidade ou valor muito alto.";
+            return null;
+        }
+
         var isNewPastValidity = _loaded is null && ValidUntil.Date < DateTime.Today;
         var changedExistingValidityToPast =
             _loaded is not null
@@ -223,7 +259,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
             return null;
         }
 
-        var subtotal = Items.Sum(x => x.Total);
+        var subtotal = CurrentSubtotal;
         if (Discount > subtotal)
         {
             ErrorMessage = "O desconto não pode ser maior que o subtotal.";

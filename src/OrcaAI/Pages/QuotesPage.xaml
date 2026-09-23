@@ -36,9 +36,9 @@
                             <VerticalStackLayout Spacing="4">
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                     <Label Text="{Binding Number}" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" LineBreakMode="TailTruncation" VerticalOptions="Center" />
-                                    <Border Grid.Column="1" BackgroundColor="{StaticResource PrimarySoft}" StrokeThickness="0" Padding="8,3">
+                                    <Border Grid.Column="1" BackgroundColor="{Binding StatusBackgroundColor}" StrokeThickness="0" Padding="8,3">
                                         <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
-                                        <Label Text="{Binding StatusLabel}" TextColor="{StaticResource PrimaryDark}" FontSize="11" FontAttributes="Bold" />
+                                        <Label Text="{Binding StatusLabel}" TextColor="{Binding StatusTextColor}" FontSize="11" FontAttributes="Bold" />
                                     </Border>
                                 </Grid>
                                 <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="17" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation" />

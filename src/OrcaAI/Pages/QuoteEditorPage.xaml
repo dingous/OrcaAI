@@ -64,11 +64,11 @@
                                         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="8">
                                             <VerticalStackLayout Spacing="4">
                                                 <Label Text="Quantidade" Style="{StaticResource FieldLabel}" />
-                                                <Entry Text="{Binding Quantity}" Keyboard="Numeric" Placeholder="Qtd" Style="{StaticResource Input}" />
+                                                <Entry Text="{Binding Quantity}" MaxLength="24" Keyboard="Numeric" HorizontalTextAlignment="End" Placeholder="Qtd" Style="{StaticResource Input}" />
                                             </VerticalStackLayout>
                                             <VerticalStackLayout Grid.Column="1" Spacing="4">
                                                 <Label Text="Valor unitário" Style="{StaticResource FieldLabel}" />
-                                                <Entry Text="{Binding UnitPrice}" Keyboard="Numeric" Placeholder="R$ 0,00" Style="{StaticResource Input}" />
+                                                <Entry Text="{Binding UnitPrice}" MaxLength="24" Keyboard="Numeric" HorizontalTextAlignment="End" Placeholder="R$ 0,00" Style="{StaticResource Input}" />
                                             </VerticalStackLayout>
                                         </Grid>
                                     </Grid>
@@ -83,7 +83,7 @@
                         <Label Text="Subtotal" Grid.Row="0" Grid.Column="0" Style="{StaticResource Muted}" VerticalOptions="Center" />
                         <Label Text="{Binding SubtotalText}" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" />
                         <Label Text="Desconto" Grid.Row="1" Grid.Column="0" Style="{StaticResource Muted}" VerticalOptions="Center" />
-                        <Entry Text="{Binding Discount}" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" WidthRequest="130" Style="{StaticResource Input}" />
+                        <Entry Text="{Binding Discount}" MaxLength="24" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" HorizontalTextAlignment="End" WidthRequest="130" Style="{StaticResource Input}" />
                         <Label Text="TOTAL" Grid.Row="2" Grid.Column="0" FontSize="18" FontAttributes="Bold" VerticalOptions="Center" />
                         <Label Text="{Binding TotalText}" Grid.Row="2" Grid.Column="1" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Accent}" />
                     </Grid>

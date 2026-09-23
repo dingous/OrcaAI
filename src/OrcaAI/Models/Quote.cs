@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.Maui.Graphics;
 
 namespace OrcaAI.Models;
 
@@ -19,10 +20,37 @@ public sealed class Quote
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
     [JsonIgnore]
-    public decimal Subtotal => Items.Sum(x => x.Total);
+    public decimal Subtotal
+    {
+        get
+        {
+            var total = 0m;
+            foreach (var item in Items)
+            {
+                var value = item?.Total ?? 0m;
+                if (value <= 0)
+                    continue;
+
+                if (total > decimal.MaxValue - value)
+                    return decimal.MaxValue;
+
+                total += value;
+            }
+
+            return total;
+        }
+    }
 
     [JsonIgnore]
-    public decimal Total => Math.Max(0, Subtotal - Discount);
+    public decimal Total
+    {
+        get
+        {
+            var subtotal = Subtotal;
+            var discount = Math.Max(0, Discount);
+            return discount >= subtotal ? 0 : subtotal - discount;
+        }
+    }
 
     [JsonIgnore]
     public string ClientDisplayName =>
@@ -37,5 +65,27 @@ public sealed class Quote
         QuoteStatus.Rejected => "Recusado",
         QuoteStatus.Completed => "Concluído",
         _ => Status.ToString()
+    };
+
+    [JsonIgnore]
+    public Color StatusBackgroundColor => Status switch
+    {
+        QuoteStatus.Draft => Color.FromArgb("#F1F2F6"),
+        QuoteStatus.Sent => Color.FromArgb("#EFEDFF"),
+        QuoteStatus.Approved => Color.FromArgb("#E8F8F2"),
+        QuoteStatus.Rejected => Color.FromArgb("#FFF0F2"),
+        QuoteStatus.Completed => Color.FromArgb("#E8F8F2"),
+        _ => Color.FromArgb("#F1F2F6")
+    };
+
+    [JsonIgnore]
+    public Color StatusTextColor => Status switch
+    {
+        QuoteStatus.Draft => Color.FromArgb("#6C7085"),
+        QuoteStatus.Sent => Color.FromArgb("#4338B8"),
+        QuoteStatus.Approved => Color.FromArgb("#087A59"),
+        QuoteStatus.Rejected => Color.FromArgb("#C93C4A"),
+        QuoteStatus.Completed => Color.FromArgb("#087A59"),
+        _ => Color.FromArgb("#6C7085")
     };
 }

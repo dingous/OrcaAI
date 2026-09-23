@@ -99,7 +99,22 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
             return createdLocal.Year == now.Year && createdLocal.Month == now.Month;
         });
         var pending = data.Quotes.Count(x => x.Status is QuoteStatus.Draft or QuoteStatus.Sent);
-        var approved = data.Quotes.Where(x => x.Status is QuoteStatus.Approved or QuoteStatus.Completed).Sum(x => x.Total);
+        var approved = 0m;
+        foreach (var quote in data.Quotes.Where(x => x.Status is QuoteStatus.Approved or QuoteStatus.Completed))
+        {
+            var value = quote.Total;
+            if (value <= 0)
+                continue;
+
+            if (approved > decimal.MaxValue - value)
+            {
+                approved = decimal.MaxValue;
+                break;
+            }
+
+            approved += value;
+        }
+
         return new DashboardStats(data.Clients.Count, quotesThisMonth, pending, approved);
     }
 
