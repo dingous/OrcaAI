@@ -8,41 +8,45 @@
     x:DataType="vm:QuotesViewModel"
     Title="Orçamentos">
 
-    <Grid Padding="24" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16" MaximumWidthRequest="1000" HorizontalOptions="Fill">
-        <Grid ColumnDefinitions="*,Auto">
-            <VerticalStackLayout>
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="16" MaximumWidthRequest="1000" HorizontalOptions="Fill">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="3">
                 <Label Text="Orçamentos" Style="{StaticResource PageTitle}" />
                 <Label Text="Acompanhe propostas, aprovações e valores." Style="{StaticResource Muted}" />
             </VerticalStackLayout>
-            <Button Grid.Column="1" Text="+ Novo" Command="{Binding NewCommand}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" />
+            <Button Grid.Column="1" Text="+ Novo" Command="{Binding NewCommand}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" Padding="16,11" />
         </Grid>
 
-        <SearchBar Grid.Row="1" Placeholder="Buscar por número, cliente ou serviço" Text="{Binding Search}" BackgroundColor="White" />
+        <SearchBar Grid.Row="1" Placeholder="Buscar por número, cliente ou serviço" Text="{Binding Search}" />
 
         <CollectionView Grid.Row="2" ItemsSource="{Binding Items}" SelectionMode="None">
             <CollectionView.EmptyView>
-                <VerticalStackLayout Padding="24" Spacing="8" VerticalOptions="Center">
-                    <Label Text="Nenhum orçamento" HorizontalTextAlignment="Center" FontSize="18" FontAttributes="Bold" />
-                    <Label Text="Crie o primeiro orçamento e compartilhe em PDF com seu cliente." HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
-                </VerticalStackLayout>
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <VerticalStackLayout Padding="10" Spacing="8">
+                        <Label Text="Nenhum orçamento" HorizontalTextAlignment="Center" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                        <Label Text="Crie o primeiro orçamento e compartilhe em PDF com seu cliente." HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
+                    </VerticalStackLayout>
+                </Border>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Quote">
-                    <Border BackgroundColor="White" Stroke="{StaticResource Border}" Padding="16" Margin="0,0,0,10">
-                        <Border.StrokeShape><RoundRectangle CornerRadius="18" /></Border.StrokeShape>
-                        <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
-                            <VerticalStackLayout Spacing="3">
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,10" Padding="16">
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
+                            <VerticalStackLayout Spacing="4">
                                 <HorizontalStackLayout Spacing="8">
-                                    <Label Text="{Binding Number}" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
-                                    <Label Text="{Binding StatusLabel}" BackgroundColor="{StaticResource PrimarySoft}" TextColor="{StaticResource PrimaryDark}" Padding="8,2" FontSize="11" />
+                                    <Label Text="{Binding Number}" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" LineBreakMode="TailTruncation" />
+                                    <Border BackgroundColor="{StaticResource PrimarySoft}" StrokeThickness="0" Padding="8,3">
+                                        <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                                        <Label Text="{Binding StatusLabel}" TextColor="{StaticResource PrimaryDark}" FontSize="11" FontAttributes="Bold" />
+                                    </Border>
                                 </HorizontalStackLayout>
-                                <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="17" TextColor="{StaticResource TextPrimary}" />
-                                <Label Text="{Binding ClientName, StringFormat='Cliente: {0}'}" Style="{StaticResource Muted}" />
-                                <Label Text="{Binding Total, StringFormat='Total: R$ {0:N2}'}" TextColor="{StaticResource Accent}" FontAttributes="Bold" />
+                                <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="17" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding ClientName, StringFormat='Cliente: {0}'}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Total, StringFormat='Total: R$ {0:N2}'}" TextColor="{StaticResource AccentDark}" FontAttributes="Bold" />
                             </VerticalStackLayout>
                             <HorizontalStackLayout Grid.Row="1" Spacing="6">
                                 <Button Text="Abrir" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="40" />
-                                <Button Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" BackgroundColor="#FFF0F0" TextColor="{StaticResource Danger}" CornerRadius="12" Padding="12,8" MinimumHeightRequest="40" />
+                                <Button Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" Style="{StaticResource DangerButton}" Padding="12,8" MinimumHeightRequest="40" />
                             </HorizontalStackLayout>
                         </Grid>
                     </Border>
@@ -50,6 +54,10 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Label Grid.Row="3" IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+        <Border Grid.Row="3" IsVisible="{Binding HasError}" BackgroundColor="{StaticResource DangerSoft}" StrokeThickness="0" Padding="12">
+            <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+        </Border>
+        <ActivityIndicator Grid.Row="4" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
     </Grid>
 </ContentPage>

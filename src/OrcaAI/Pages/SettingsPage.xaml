@@ -19,13 +19,13 @@
                         <Border.StrokeShape><RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                         <Label Text="{Binding UserInitials}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" FontSize="17" />
                     </Border>
-                    <Label Grid.Column="1" Text="{Binding UserName}" FontAttributes="Bold" FontSize="17" TextColor="{StaticResource TextPrimary}" />
+                    <Label Grid.Column="1" Text="{Binding UserName}" FontAttributes="Bold" FontSize="17" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation" />
                     <Label Grid.Row="1" Grid.Column="1" Text="{Binding UserEmail}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
                 </Grid>
             </Border>
 
             <Border Style="{StaticResource Card}">
-                <VerticalStackLayout Spacing="12">
+                <VerticalStackLayout Spacing="10">
                     <Label Text="Dados do orçamento" Style="{StaticResource SectionTitle}" />
                     <Label Text="Nome da empresa/profissional *" Style="{StaticResource FieldLabel}" />
                     <Entry Text="{Binding BusinessName}" Placeholder="Ex.: Diego Serviços Elétricos" Style="{StaticResource Input}" />
@@ -39,16 +39,10 @@
                     <Entry Text="{Binding Email}" Keyboard="Email" Style="{StaticResource Input}" />
                     <Label Text="Cidade" Style="{StaticResource FieldLabel}" />
                     <Entry Text="{Binding City}" Style="{StaticResource Input}" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="Validade (dias)" Style="{StaticResource FieldLabel}" />
-                            <Entry Text="{Binding DefaultValidityDays}" Keyboard="Numeric" Style="{StaticResource Input}" />
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1" Spacing="6">
-                            <Label Text="Mão de obra (R$)" Style="{StaticResource FieldLabel}" />
-                            <Entry Text="{Binding DefaultLaborValue}" Keyboard="Numeric" Style="{StaticResource Input}" />
-                        </VerticalStackLayout>
-                    </Grid>
+                    <Label Text="Validade padrão (dias)" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding DefaultValidityDays}" Keyboard="Numeric" Style="{StaticResource Input}" />
+                    <Label Text="Mão de obra padrão (R$)" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding DefaultLaborValue}" Keyboard="Numeric" Style="{StaticResource Input}" />
                 </VerticalStackLayout>
             </Border>
 

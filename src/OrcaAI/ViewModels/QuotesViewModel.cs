@@ -34,6 +34,9 @@ public sealed class QuotesViewModel : BaseViewModel
 
     public async Task LoadAsync()
     {
+        if (IsBusy)
+            return;
+
         IsBusy = true;
         try
         {
@@ -56,9 +59,25 @@ public sealed class QuotesViewModel : BaseViewModel
 
     public async Task DeleteAsync(Quote quote)
     {
-        await _store.DeleteQuoteAsync(quote.Id);
-        _all.RemoveAll(x => x.Id == quote.Id);
-        ApplyFilter();
+        if (IsBusy)
+            return;
+
+        IsBusy = true;
+        try
+        {
+            ErrorMessage = string.Empty;
+            await _store.DeleteQuoteAsync(quote.Id);
+            _all.RemoveAll(x => x.Id == quote.Id);
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Não foi possível excluir o orçamento: " + ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private void ApplyFilter()

@@ -75,6 +75,7 @@ public sealed class DingousAuthService : IAuthService
             throw new InvalidOperationException(error);
 
         if (!parameters.TryGetValue("state", out var state)
+            || state.Length != expectedState.Length
             || !CryptographicOperations.FixedTimeEquals(
                 Encoding.UTF8.GetBytes(state),
                 Encoding.UTF8.GetBytes(expectedState)))
@@ -86,7 +87,8 @@ public sealed class DingousAuthService : IAuthService
             throw new InvalidOperationException("O Dingous ChatTrade não retornou um token de acesso.");
 
         if (!parameters.TryGetValue("expires_at", out var expiresRaw)
-            || !DateTimeOffset.TryParse(expiresRaw, out var expiresAt))
+            || !DateTimeOffset.TryParse(expiresRaw, out var expiresAt)
+            || expiresAt <= DateTimeOffset.UtcNow)
         {
             throw new InvalidOperationException("A validade da sessão retornada pelo servidor é inválida.");
         }
@@ -114,6 +116,7 @@ public sealed class DingousAuthService : IAuthService
     {
         var listener = new TcpListener(IPAddress.Loopback, 0);
         listener.Start();
+
         try
         {
             var endpoint = (IPEndPoint)listener.LocalEndpoint;
@@ -145,12 +148,16 @@ public sealed class DingousAuthService : IAuthService
                 throw new InvalidOperationException("Resposta de autenticação inválida.");
 
             var callbackUri = new Uri($"http://127.0.0.1:{endpoint.Port}{parts[1]}");
+            if (!callbackUri.IsLoopback || !string.Equals(callbackUri.AbsolutePath.TrimEnd('/'), "/auth", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Callback de autenticação inválido.");
+
             var values = ParseQuery(callbackUri.Query);
 
-            const string html = "<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OrçaAI</title></head><body style="font-family:system-ui;padding:40px;text-align:center"><h2>Login concluído</h2><p>Você já pode voltar ao OrçaAI e fechar esta aba.</p></body></html>";
+            const string html = "<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>OrçaAI</title></head><body style='font-family:system-ui;padding:40px;text-align:center;background:#f7f7fc;color:#1d2030'><h2>Login concluído</h2><p>Você já pode voltar ao OrçaAI e fechar esta aba.</p></body></html>";
             var body = Encoding.UTF8.GetBytes(html);
             var header = Encoding.ASCII.GetBytes(
                 $"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {body.Length}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n");
+
             await stream.WriteAsync(header, timeout.Token);
             await stream.WriteAsync(body, timeout.Token);
             await stream.FlushAsync(timeout.Token);
@@ -173,6 +180,7 @@ public sealed class DingousAuthService : IAuthService
             var value = pair.Length > 1 ? Uri.UnescapeDataString(pair[1].Replace('+', ' ')) : string.Empty;
             values[key] = value;
         }
+
         return values;
     }
 #endif

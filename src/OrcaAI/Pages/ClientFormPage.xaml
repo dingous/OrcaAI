@@ -7,18 +7,32 @@
     x:DataType="vm:ClientFormViewModel"
     Title="Cliente">
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="14" MaximumWidthRequest="720" HorizontalOptions="Fill">
-            <Label Text="{Binding Title}" Style="{StaticResource PageTitle}" />
-            <Label Text="Nome *" Style="{StaticResource Muted}" />
-            <Entry Text="{Binding Name}" Placeholder="Ex.: João da Silva" Style="{StaticResource Input}" />
-            <Label Text="Telefone" Style="{StaticResource Muted}" />
-            <Entry Text="{Binding Phone}" Placeholder="(34) 99999-9999" Keyboard="Telephone" Style="{StaticResource Input}" />
-            <Label Text="E-mail" Style="{StaticResource Muted}" />
-            <Entry Text="{Binding Email}" Placeholder="cliente@email.com" Keyboard="Email" Style="{StaticResource Input}" />
-            <Label Text="Observações" Style="{StaticResource Muted}" />
-            <Editor Text="{Binding Notes}" Placeholder="Preferências, endereço ou detalhes importantes" Style="{StaticResource EditorInput}" />
-            <Label IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
-            <Button Text="Salvar cliente" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" />
+        <VerticalStackLayout Padding="24" Spacing="18" MaximumWidthRequest="720" HorizontalOptions="Fill">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding Title}" Style="{StaticResource PageTitle}" />
+                <Label Text="Mantenha os dados essenciais do cliente organizados para seus orçamentos." Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Nome *" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Name}" Placeholder="Ex.: João da Silva" Style="{StaticResource Input}" />
+                    <Label Text="Telefone" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Phone}" Placeholder="(34) 99999-9999" Keyboard="Telephone" Style="{StaticResource Input}" />
+                    <Label Text="E-mail" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Email}" Placeholder="cliente@email.com" Keyboard="Email" Style="{StaticResource Input}" />
+                    <Label Text="Observações" Style="{StaticResource FieldLabel}" />
+                    <Editor Text="{Binding Notes}" Placeholder="Preferências, endereço ou detalhes importantes" Style="{StaticResource EditorInput}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border IsVisible="{Binding HasError}" BackgroundColor="{StaticResource DangerSoft}" StrokeThickness="0" Padding="12">
+                <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+            </Border>
+
+            <Button Text="Salvar cliente" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButton}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

@@ -92,8 +92,12 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
     public async Task<DashboardStats> GetDashboardStatsAsync(CancellationToken cancellationToken = default)
     {
         var data = await GetDataAsync(cancellationToken);
-        var now = DateTime.UtcNow;
-        var quotesThisMonth = data.Quotes.Count(x => x.CreatedAtUtc.Year == now.Year && x.CreatedAtUtc.Month == now.Month);
+        var now = DateTime.Now;
+        var quotesThisMonth = data.Quotes.Count(x =>
+        {
+            var createdLocal = x.CreatedAtUtc.ToLocalTime();
+            return createdLocal.Year == now.Year && createdLocal.Month == now.Month;
+        });
         var pending = data.Quotes.Count(x => x.Status is QuoteStatus.Draft or QuoteStatus.Sent);
         var approved = data.Quotes.Where(x => x.Status is QuoteStatus.Approved or QuoteStatus.Completed).Sum(x => x.Total);
         return new DashboardStats(data.Clients.Count, quotesThisMonth, pending, approved);
@@ -126,6 +130,7 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
             }
             catch (JsonException)
             {
+                BackupCorruptFile(filePath);
                 _cache = new DataEnvelope();
                 await PersistUnsafeAsync(_cache, filePath, cancellationToken);
             }
@@ -158,6 +163,7 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
                     }
                     catch (JsonException)
                     {
+                        BackupCorruptFile(filePath);
                         _cache = null;
                     }
                 }
@@ -188,6 +194,22 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
             File.Move(_legacyFilePath, scopedPath);
 
         return scopedPath;
+    }
+
+    private static void BackupCorruptFile(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return;
+
+            var backupPath = $"{filePath}.corrupt-{DateTime.UtcNow:yyyyMMddHHmmssfff}";
+            File.Move(filePath, backupPath, true);
+        }
+        catch
+        {
+            // A recuperação continua mesmo se o backup não puder ser criado.
+        }
     }
 
     private static Client CloneClient(Client source) => new()
@@ -239,10 +261,21 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
     {
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
         var temp = filePath + ".tmp";
-        await using (var stream = File.Create(temp))
-            await JsonSerializer.SerializeAsync(stream, data, _jsonOptions, cancellationToken);
 
-        File.Move(temp, filePath, true);
+        try
+        {
+            await using (var stream = File.Create(temp))
+                await JsonSerializer.SerializeAsync(stream, data, _jsonOptions, cancellationToken);
+
+            File.Move(temp, filePath, true);
+        }
+        finally
+        {
+            if (File.Exists(temp))
+            {
+                try { File.Delete(temp); } catch { }
+            }
+        }
     }
 
     private sealed class DataEnvelope

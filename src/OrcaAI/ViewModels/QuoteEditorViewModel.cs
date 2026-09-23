@@ -84,28 +84,39 @@ public sealed class QuoteEditorViewModel : BaseViewModel
             _profile = await _store.GetBusinessProfileAsync();
             var clients = await _store.GetClientsAsync();
             Clients.Clear();
-            foreach (var client in clients) Clients.Add(client);
+            foreach (var client in clients)
+                Clients.Add(client);
 
-            if (Guid.TryParse(id, out var quoteId))
+            if (!string.IsNullOrWhiteSpace(id))
             {
-                _loaded = await _store.GetQuoteAsync(quoteId);
-                if (_loaded is not null)
+                if (!Guid.TryParse(id, out var quoteId))
                 {
-                    Number = _loaded.Number;
-                    Title = _loaded.Title;
-                    Description = _loaded.Description;
-                    Notes = _loaded.Notes;
-                    Discount = _loaded.Discount;
-                    ValidUntil = _loaded.ValidUntil;
-                    SelectedClient = Clients.FirstOrDefault(x => x.Id == _loaded.ClientId);
-                    SelectedStatus = StatusOptions.First(x => x.Value == _loaded.Status);
-                    ReplaceItems(_loaded.Items);
+                    ErrorMessage = "Identificador do orçamento inválido.";
                     return;
                 }
+
+                _loaded = await _store.GetQuoteAsync(quoteId);
+                if (_loaded is null)
+                {
+                    ErrorMessage = "Orçamento não encontrado.";
+                    return;
+                }
+
+                Number = _loaded.Number;
+                Title = _loaded.Title;
+                Description = _loaded.Description;
+                Notes = _loaded.Notes;
+                Discount = _loaded.Discount;
+                ValidUntil = _loaded.ValidUntil;
+                SelectedClient = Clients.FirstOrDefault(x => x.Id == _loaded.ClientId);
+                SelectedStatus = StatusOptions.FirstOrDefault(x => x.Value == _loaded.Status) ?? StatusOptions[0];
+                ReplaceItems(_loaded.Items);
+                return;
             }
 
             Number = $"ORC-{DateTime.Now:yyMMdd-HHmmssfff}";
             ValidUntil = DateTime.Today.AddDays(Math.Clamp(_profile.DefaultValidityDays, 1, 365));
+            SelectedStatus = StatusOptions[0];
             ReplaceItems([]);
         }
         catch (Exception ex)
@@ -163,14 +174,41 @@ public sealed class QuoteEditorViewModel : BaseViewModel
     private async Task<Quote?> SaveAsync(bool navigateBack)
     {
         ErrorMessage = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(Number))
+        {
+            ErrorMessage = "Não foi possível identificar este orçamento. Reabra a tela e tente novamente.";
+            return null;
+        }
+
         if (string.IsNullOrWhiteSpace(Title))
         {
             ErrorMessage = "Informe o título do orçamento.";
             return null;
         }
+
         if (Items.Count == 0)
         {
             ErrorMessage = "Adicione pelo menos um item ao orçamento.";
+            return null;
+        }
+
+        if (Items.Any(x => string.IsNullOrWhiteSpace(x.Description)))
+        {
+            ErrorMessage = "Preencha a descrição de todos os itens.";
+            return null;
+        }
+
+        if (Items.Any(x => x.Quantity <= 0))
+        {
+            ErrorMessage = "A quantidade dos itens deve ser maior que zero.";
+            return null;
+        }
+
+        var subtotal = Items.Sum(x => x.Total);
+        if (Discount > subtotal)
+        {
+            ErrorMessage = "O desconto não pode ser maior que o subtotal.";
             return null;
         }
 
@@ -192,6 +230,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
             if (navigateBack)
                 await Shell.Current.GoToAsync("..");
+
             return quote;
         }
         catch (Exception ex)
@@ -208,8 +247,10 @@ public sealed class QuoteEditorViewModel : BaseViewModel
     private async Task ShareAsync()
     {
         var quote = await SaveAsync(false);
-        if (quote is null) return;
+        if (quote is null)
+            return;
 
+        IsBusy = true;
         try
         {
             var path = await _pdf.GenerateQuoteAsync(quote, _profile);
@@ -223,18 +264,25 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         {
             ErrorMessage = "Não foi possível gerar/compartilhar o PDF: " + ex.Message;
         }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private void ReplaceItems(IEnumerable<QuoteItem> items)
     {
         foreach (var current in Items)
             current.PropertyChanged -= OnItemPropertyChanged;
+
         Items.Clear();
+
         foreach (var item in items)
         {
             item.PropertyChanged += OnItemPropertyChanged;
             Items.Add(item);
         }
+
         RaiseTotals();
     }
 

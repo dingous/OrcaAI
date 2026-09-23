@@ -18,7 +18,7 @@ public sealed class ClientFormViewModel : BaseViewModel
     public ClientFormViewModel(IOrcaDataStore store)
     {
         _store = store;
-        SaveCommand = new AsyncRelayCommand(SaveAsync);
+        SaveCommand = new AsyncRelayCommand(SaveAsync, () => !IsBusy);
     }
 
     public string Title { get => _title; private set => SetProperty(ref _title, value); }
@@ -31,17 +31,43 @@ public sealed class ClientFormViewModel : BaseViewModel
     public async Task LoadAsync(string? id)
     {
         ErrorMessage = string.Empty;
-        if (!Guid.TryParse(id, out var parsed))
+
+        if (string.IsNullOrWhiteSpace(id))
             return;
 
-        var client = await _store.GetClientAsync(parsed);
-        if (client is null) return;
-        _id = client.Id;
-        Title = "Editar cliente";
-        Name = client.Name;
-        Phone = client.Phone;
-        Email = client.Email;
-        Notes = client.Notes;
+        if (!Guid.TryParse(id, out var parsed))
+        {
+            ErrorMessage = "Identificador do cliente inválido.";
+            return;
+        }
+
+        IsBusy = true;
+        RaiseSaveState();
+        try
+        {
+            var client = await _store.GetClientAsync(parsed);
+            if (client is null)
+            {
+                ErrorMessage = "Cliente não encontrado.";
+                return;
+            }
+
+            _id = client.Id;
+            Title = "Editar cliente";
+            Name = client.Name;
+            Phone = client.Phone;
+            Email = client.Email;
+            Notes = client.Notes;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Não foi possível carregar o cliente: " + ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+            RaiseSaveState();
+        }
     }
 
     private async Task SaveAsync()
@@ -54,9 +80,16 @@ public sealed class ClientFormViewModel : BaseViewModel
         }
 
         IsBusy = true;
+        RaiseSaveState();
         try
         {
             var existing = _id.HasValue ? await _store.GetClientAsync(_id.Value) : null;
+            if (_id.HasValue && existing is null)
+            {
+                ErrorMessage = "O cliente não existe mais.";
+                return;
+            }
+
             var client = existing ?? new Client();
             client.Name = Name.Trim();
             client.Phone = Phone.Trim();
@@ -72,6 +105,10 @@ public sealed class ClientFormViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            RaiseSaveState();
         }
     }
+
+    private void RaiseSaveState() =>
+        (SaveCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
 }

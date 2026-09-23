@@ -8,41 +8,42 @@
     x:DataType="vm:ClientsViewModel"
     Title="Clientes">
 
-    <Grid Padding="24" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16" MaximumWidthRequest="1000" HorizontalOptions="Fill">
-        <Grid ColumnDefinitions="*,Auto">
-            <VerticalStackLayout>
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="16" MaximumWidthRequest="1000" HorizontalOptions="Fill">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="3">
                 <Label Text="Clientes" Style="{StaticResource PageTitle}" />
                 <Label Text="Sua base de clientes fica armazenada no dispositivo." Style="{StaticResource Muted}" />
             </VerticalStackLayout>
-            <Button Grid.Column="1" Text="+ Novo" Command="{Binding AddCommand}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" />
+            <Button Grid.Column="1" Text="+ Novo" Command="{Binding AddCommand}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" Padding="16,11" />
         </Grid>
 
-        <SearchBar Grid.Row="1" Placeholder="Buscar por nome, telefone ou e-mail" Text="{Binding Search}" BackgroundColor="White" />
+        <SearchBar Grid.Row="1" Placeholder="Buscar por nome, telefone ou e-mail" Text="{Binding Search}" />
 
         <CollectionView Grid.Row="2" ItemsSource="{Binding Items}" SelectionMode="None">
             <CollectionView.EmptyView>
-                <VerticalStackLayout Padding="24" Spacing="8" VerticalOptions="Center">
-                    <Label Text="Nenhum cliente ainda" HorizontalTextAlignment="Center" FontSize="18" FontAttributes="Bold" />
-                    <Label Text="Cadastre o primeiro cliente para acelerar seus próximos orçamentos." HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
-                </VerticalStackLayout>
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <VerticalStackLayout Padding="10" Spacing="8">
+                        <Label Text="Nenhum cliente ainda" HorizontalTextAlignment="Center" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                        <Label Text="Cadastre o primeiro cliente para acelerar seus próximos orçamentos." HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
+                    </VerticalStackLayout>
+                </Border>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Client">
-                    <Border BackgroundColor="White" Stroke="{StaticResource Border}" Padding="16" Margin="0,0,0,10">
-                        <Border.StrokeShape><RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,10" Padding="16">
                         <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="14" RowSpacing="10">
                             <Border Grid.RowSpan="2" WidthRequest="46" HeightRequest="46" BackgroundColor="{StaticResource PrimarySoft}" StrokeThickness="0" VerticalOptions="Start">
-                                <Border.StrokeShape><RoundRectangle CornerRadius="23" /></Border.StrokeShape>
+                                <Border.StrokeShape><RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                                 <Label Text="{Binding Initials}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" />
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource TextPrimary}" />
-                                <Label Text="{Binding Phone}" Style="{StaticResource Muted}" />
+                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Phone}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
                                 <Label Text="{Binding Email}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
                             </VerticalStackLayout>
                             <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="6">
                                 <Button Text="Editar" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="40" />
-                                <Button Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" BackgroundColor="#FFF0F0" TextColor="{StaticResource Danger}" CornerRadius="12" Padding="12,8" MinimumHeightRequest="40" />
+                                <Button Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" Style="{StaticResource DangerButton}" Padding="12,8" MinimumHeightRequest="40" />
                             </HorizontalStackLayout>
                         </Grid>
                     </Border>
@@ -50,6 +51,10 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Label Grid.Row="3" IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+        <Border Grid.Row="3" IsVisible="{Binding HasError}" BackgroundColor="{StaticResource DangerSoft}" StrokeThickness="0" Padding="12">
+            <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+        </Border>
+        <ActivityIndicator Grid.Row="4" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
     </Grid>
 </ContentPage>

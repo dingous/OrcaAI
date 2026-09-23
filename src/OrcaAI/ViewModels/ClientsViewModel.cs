@@ -34,6 +34,9 @@ public sealed class ClientsViewModel : BaseViewModel
 
     public async Task LoadAsync()
     {
+        if (IsBusy)
+            return;
+
         IsBusy = true;
         try
         {
@@ -56,9 +59,25 @@ public sealed class ClientsViewModel : BaseViewModel
 
     public async Task DeleteAsync(Client client)
     {
-        await _store.DeleteClientAsync(client.Id);
-        _all.RemoveAll(x => x.Id == client.Id);
-        ApplyFilter();
+        if (IsBusy)
+            return;
+
+        IsBusy = true;
+        try
+        {
+            ErrorMessage = string.Empty;
+            await _store.DeleteClientAsync(client.Id);
+            _all.RemoveAll(x => x.Id == client.Id);
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Não foi possível excluir o cliente: " + ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private void ApplyFilter()
