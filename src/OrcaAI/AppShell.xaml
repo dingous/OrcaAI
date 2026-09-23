@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="OrcaAI.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:OrcaAI.Pages"
+    Title="OrçaAI"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.BackgroundColor="{StaticResource Surface}"
+    Shell.ForegroundColor="{StaticResource TextPrimary}"
+    Shell.TitleColor="{StaticResource TextPrimary}"
+    Shell.TabBarBackgroundColor="{StaticResource Surface}"
+    Shell.TabBarForegroundColor="{StaticResource Primary}"
+    Shell.TabBarTitleColor="{StaticResource Primary}"
+    Shell.TabBarUnselectedColor="{StaticResource TextSecondary}">
+
+    <TabBar>
+        <ShellContent Route="dashboard" Title="Início" Icon="home.svg" ContentTemplate="{DataTemplate pages:DashboardPage}" />
+        <ShellContent Route="clients" Title="Clientes" Icon="users.svg" ContentTemplate="{DataTemplate pages:ClientsPage}" />
+        <ShellContent Route="quotes" Title="Orçamentos" Icon="filetext.svg" ContentTemplate="{DataTemplate pages:QuotesPage}" />
+        <ShellContent Route="settings" Title="Empresa" Icon="settings.svg" ContentTemplate="{DataTemplate pages:SettingsPage}" />
+    </TabBar>
+</Shell>

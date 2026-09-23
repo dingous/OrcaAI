@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OrcaAI.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:OrcaAI.ViewModels"
+    x:DataType="vm:SettingsViewModel"
+    Title="Empresa">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12" MaximumWidthRequest="720" HorizontalOptions="Fill">
+            <Label Text="Sua empresa" Style="{StaticResource PageTitle}" />
+            <Label Text="Estes dados aparecem no PDF e ajudam o gerador local a montar os itens." Style="{StaticResource Muted}" />
+
+            <Label Text="Nome da empresa/profissional *" Style="{StaticResource Muted}" />
+            <Entry Text="{Binding BusinessName}" Placeholder="Ex.: Diego Serviços Elétricos" Style="{StaticResource Input}" />
+            <Label Text="Responsável" Style="{StaticResource Muted}" />
+            <Entry Text="{Binding OwnerName}" Style="{StaticResource Input}" />
+            <Label Text="CPF/CNPJ" Style="{StaticResource Muted}" />
+            <Entry Text="{Binding Document}" Style="{StaticResource Input}" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <VerticalStackLayout><Label Text="Telefone" Style="{StaticResource Muted}" /><Entry Text="{Binding Phone}" Keyboard="Telephone" Style="{StaticResource Input}" /></VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1"><Label Text="E-mail" Style="{StaticResource Muted}" /><Entry Text="{Binding Email}" Keyboard="Email" Style="{StaticResource Input}" /></VerticalStackLayout>
+            </Grid>
+            <Label Text="Cidade" Style="{StaticResource Muted}" />
+            <Entry Text="{Binding City}" Style="{StaticResource Input}" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <VerticalStackLayout><Label Text="Validade padrão (dias)" Style="{StaticResource Muted}" /><Entry Text="{Binding DefaultValidityDays}" Keyboard="Numeric" Style="{StaticResource Input}" /></VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1"><Label Text="Mão de obra padrão (R$)" Style="{StaticResource Muted}" /><Entry Text="{Binding DefaultLaborValue}" Keyboard="Numeric" Style="{StaticResource Input}" /></VerticalStackLayout>
+            </Grid>
+
+            <Label IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+            <Label IsVisible="{Binding HasSuccess}" Text="{Binding SuccessMessage}" TextColor="{StaticResource Accent}" />
+            <Button Text="Salvar dados" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OrcaAI.Pages.ClientFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:OrcaAI.ViewModels"
+    x:DataType="vm:ClientFormViewModel"
+    Title="Cliente">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="14" MaximumWidthRequest="720" HorizontalOptions="Fill">
+            <Label Text="{Binding Title}" Style="{StaticResource PageTitle}" />
+            <Label Text="Nome *" Style="{StaticResource Muted}" />
+            <Entry Text="{Binding Name}" Placeholder="Ex.: João da Silva" Style="{StaticResource Input}" />
+            <Label Text="Telefone" Style="{StaticResource Muted}" />
+            <Entry Text="{Binding Phone}" Placeholder="(34) 99999-9999" Keyboard="Telephone" Style="{StaticResource Input}" />
+            <Label Text="E-mail" Style="{StaticResource Muted}" />
+            <Entry Text="{Binding Email}" Placeholder="cliente@email.com" Keyboard="Email" Style="{StaticResource Input}" />
+            <Label Text="Observações" Style="{StaticResource Muted}" />
+            <Editor Text="{Binding Notes}" Placeholder="Preferências, endereço ou detalhes importantes" Style="{StaticResource EditorInput}" />
+            <Label IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+            <Button Text="Salvar cliente" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

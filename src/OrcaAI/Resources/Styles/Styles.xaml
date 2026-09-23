@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Style TargetType="ContentPage">
+        <Setter Property="BackgroundColor" Value="{StaticResource Background}" />
+    </Style>
+
+    <Style x:Key="PageTitle" TargetType="Label">
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+    </Style>
+
+    <Style x:Key="SectionTitle" TargetType="Label">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+    </Style>
+
+    <Style x:Key="Muted" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+
+    <Style x:Key="PrimaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="TextColor" Value="{StaticResource TextOnPrimary}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="18,13" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
+    </Style>
+
+    <Style x:Key="SecondaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource PrimarySoft}" />
+        <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="18,13" />
+        <Setter Property="MinimumHeightRequest" Value="48" />
+    </Style>
+
+    <Style x:Key="Input" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="#FAFAFD" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="PlaceholderColor" Value="#A2A5B5" />
+        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="Margin" Value="0,4" />
+    </Style>
+
+    <Style x:Key="EditorInput" TargetType="Editor">
+        <Setter Property="BackgroundColor" Value="#FAFAFD" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="PlaceholderColor" Value="#A2A5B5" />
+        <Setter Property="MinimumHeightRequest" Value="110" />
+    </Style>
+</ResourceDictionary>

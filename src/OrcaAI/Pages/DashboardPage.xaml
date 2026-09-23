@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OrcaAI.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:OrcaAI.ViewModels"
+    x:DataType="vm:DashboardViewModel"
+    Title="Início">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="22" MaximumWidthRequest="1000" HorizontalOptions="Fill">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="OrçaAI" Style="{StaticResource PageTitle}" />
+                    <Label Text="Orçamentos profissionais em poucos passos." Style="{StaticResource Muted}" />
+                </VerticalStackLayout>
+                <Border BackgroundColor="{StaticResource PrimarySoft}" StrokeThickness="0" Padding="12,7" VerticalOptions="Center">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                    <Label Text="MVP • local" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" FontSize="12" />
+                </Border>
+            </Grid>
+
+            <Border BackgroundColor="{StaticResource Primary}" StrokeThickness="0" Padding="24">
+                <Border.StrokeShape><RoundRectangle CornerRadius="26" /></Border.StrokeShape>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="18">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Crie um orçamento agora" TextColor="White" FontSize="23" FontAttributes="Bold" />
+                        <Label Text="Descreva o serviço, gere o rascunho, ajuste os valores e compartilhe o PDF." TextColor="#EDE9FF" FontSize="14" />
+                        <Button Text="+ Novo orçamento" Command="{Binding NewQuoteCommand}" BackgroundColor="White" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" CornerRadius="14" Margin="0,8,0,0" HorizontalOptions="Start" />
+                    </VerticalStackLayout>
+                    <Image Source="spark.svg" WidthRequest="86" HeightRequest="86" Opacity="0.95" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <Label Text="Seu negócio" Style="{StaticResource SectionTitle}" />
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                <Border Grid.Row="0" Grid.Column="0" BackgroundColor="White" Stroke="{StaticResource Border}" Padding="18">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                    <VerticalStackLayout><Label Text="Clientes" Style="{StaticResource Muted}" /><Label Text="{Binding Clients}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" /></VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1" BackgroundColor="White" Stroke="{StaticResource Border}" Padding="18">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                    <VerticalStackLayout><Label Text="Orçamentos no mês" Style="{StaticResource Muted}" /><Label Text="{Binding QuotesThisMonth}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" /></VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="0" BackgroundColor="White" Stroke="{StaticResource Border}" Padding="18">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                    <VerticalStackLayout><Label Text="Pendentes" Style="{StaticResource Muted}" /><Label Text="{Binding Pending}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource Warning}" /></VerticalStackLayout>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" BackgroundColor="White" Stroke="{StaticResource Border}" Padding="18">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                    <VerticalStackLayout><Label Text="Aprovado" Style="{StaticResource Muted}" /><Label Text="{Binding ApprovedValue}" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Accent}" /></VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="+ Cliente" Style="{StaticResource SecondaryButton}" Command="{Binding AddClientCommand}" />
+                <Button Grid.Column="1" Text="Ver orçamentos" Style="{StaticResource SecondaryButton}" Command="{Binding ViewQuotesCommand}" />
+            </Grid>
+
+            <Label IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

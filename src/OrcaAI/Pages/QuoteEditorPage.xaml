@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OrcaAI.Pages.QuoteEditorPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:OrcaAI.Models"
+    xmlns:vm="clr-namespace:OrcaAI.ViewModels"
+    x:DataType="vm:QuoteEditorViewModel"
+    Title="Orçamento">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="18" MaximumWidthRequest="900" HorizontalOptions="Fill">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout>
+                    <Label Text="Orçamento" Style="{StaticResource PageTitle}" />
+                    <Label Text="{Binding Number}" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" />
+                </VerticalStackLayout>
+                <Picker Grid.Column="1" Title="Status" ItemsSource="{Binding StatusOptions}" ItemDisplayBinding="{Binding Label}" SelectedItem="{Binding SelectedStatus}" WidthRequest="160" VerticalOptions="Center" />
+            </Grid>
+
+            <Border BackgroundColor="White" Stroke="{StaticResource Border}" Padding="20">
+                <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="1. Descreva o serviço" Style="{StaticResource SectionTitle}" />
+                    <Editor Text="{Binding Description}" Placeholder="Ex.: Trocar 3 tomadas, instalar 2 luminárias e revisar o disjuntor do quarto." Style="{StaticResource EditorInput}" />
+                    <Button Text="✨ Gerar rascunho inteligente" Command="{Binding GenerateDraftCommand}" Style="{StaticResource SecondaryButton}" HorizontalOptions="Start" />
+                    <Label Text="O modo local organiza a descrição sem enviar seus dados para serviços externos." Style="{StaticResource Muted}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="White" Stroke="{StaticResource Border}" Padding="20">
+                <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="2. Dados do orçamento" Style="{StaticResource SectionTitle}" />
+                    <Label Text="Cliente" Style="{StaticResource Muted}" />
+                    <Picker Title="Selecione um cliente (opcional)" ItemsSource="{Binding Clients}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedClient}" />
+                    <Label Text="Título" Style="{StaticResource Muted}" />
+                    <Entry Text="{Binding Title}" Placeholder="Ex.: Serviço elétrico" Style="{StaticResource Input}" />
+                    <Label Text="Validade" Style="{StaticResource Muted}" />
+                    <DatePicker Date="{Binding ValidUntil}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="White" Stroke="{StaticResource Border}" Padding="20">
+                <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="3. Itens e valores" Style="{StaticResource SectionTitle}" />
+                        <Button Grid.Column="1" Text="+ Item" Command="{Binding AddItemCommand}" Style="{StaticResource SecondaryButton}" />
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding Items}" SelectionMode="None" HeightRequest="260">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:QuoteItem">
+                                <Grid ColumnDefinitions="*,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4" Margin="0,4">
+                                    <Entry Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Description}" Placeholder="Descrição" Style="{StaticResource Input}" />
+                                    <Entry Grid.Row="1" Grid.Column="0" Text="{Binding Quantity}" Keyboard="Numeric" Placeholder="Qtd" Style="{StaticResource Input}" />
+                                    <Entry Grid.Row="1" Grid.Column="1" Text="{Binding UnitPrice}" Keyboard="Numeric" Placeholder="Valor unitário" Style="{StaticResource Input}" />
+                                    <Button Grid.Row="1" Grid.Column="2" Text="×" CommandParameter="{Binding .}" Clicked="OnRemoveItemClicked" BackgroundColor="#FFF0F0" TextColor="{StaticResource Danger}" CornerRadius="12" WidthRequest="44" HeightRequest="44" VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12">
+                        <Label Text="Subtotal" Grid.Row="0" Grid.Column="0" Style="{StaticResource Muted}" />
+                        <Label Text="{Binding SubtotalText}" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" />
+                        <Label Text="Desconto" Grid.Row="1" Grid.Column="0" Style="{StaticResource Muted}" VerticalOptions="Center" />
+                        <Entry Text="{Binding Discount}" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" WidthRequest="130" Style="{StaticResource Input}" />
+                        <Label Text="TOTAL" Grid.Row="2" Grid.Column="0" FontSize="18" FontAttributes="Bold" />
+                        <Label Text="{Binding TotalText}" Grid.Row="2" Grid.Column="1" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Accent}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="White" Stroke="{StaticResource Border}" Padding="20">
+                <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Observações" Style="{StaticResource SectionTitle}" />
+                    <Editor Text="{Binding Notes}" Placeholder="Condições de pagamento, prazo de execução, garantia..." Style="{StaticResource EditorInput}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Salvar" Command="{Binding SaveCommand}" Style="{StaticResource SecondaryButton}" />
+                <Button Grid.Column="1" Text="Gerar PDF e compartilhar" Command="{Binding ShareCommand}" Style="{StaticResource PrimaryButton}" />
+            </Grid>
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

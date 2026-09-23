@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OrcaAI.Pages.QuotesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:OrcaAI.Models"
+    xmlns:vm="clr-namespace:OrcaAI.ViewModels"
+    x:DataType="vm:QuotesViewModel"
+    Title="Orçamentos">
+
+    <Grid Padding="24" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16" MaximumWidthRequest="1000" HorizontalOptions="Fill">
+        <Grid ColumnDefinitions="*,Auto">
+            <VerticalStackLayout>
+                <Label Text="Orçamentos" Style="{StaticResource PageTitle}" />
+                <Label Text="Acompanhe propostas, aprovações e valores." Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1" Text="+ Novo" Command="{Binding NewCommand}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" />
+        </Grid>
+
+        <SearchBar Grid.Row="1" Placeholder="Buscar por número, cliente ou serviço" Text="{Binding Search}" BackgroundColor="White" />
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Items}" SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="24" Spacing="8" VerticalOptions="Center">
+                    <Label Text="Nenhum orçamento" HorizontalTextAlignment="Center" FontSize="18" FontAttributes="Bold" />
+                    <Label Text="Crie o primeiro orçamento e compartilhe em PDF com seu cliente." HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Quote">
+                    <Border BackgroundColor="White" Stroke="{StaticResource Border}" Padding="16" Margin="0,0,0,10">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                            <VerticalStackLayout Spacing="3">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding Number}" FontAttributes="Bold" TextColor="{StaticResource PrimaryDark}" />
+                                    <Label Text="{Binding StatusLabel}" BackgroundColor="{StaticResource PrimarySoft}" TextColor="{StaticResource PrimaryDark}" Padding="8,2" FontSize="11" />
+                                </HorizontalStackLayout>
+                                <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="17" TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="{Binding ClientName, StringFormat='Cliente: {0}'}" Style="{StaticResource Muted}" />
+                                <Label Text="{Binding Total, StringFormat='Total: R$ {0:N2}'}" TextColor="{StaticResource Accent}" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout Grid.Row="1" Spacing="6">
+                                <Button Text="Abrir" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="40" />
+                                <Button Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" BackgroundColor="#FFF0F0" TextColor="{StaticResource Danger}" CornerRadius="12" Padding="12,8" MinimumHeightRequest="40" />
+                            </HorizontalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Grid.Row="3" IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+    </Grid>
+</ContentPage>
