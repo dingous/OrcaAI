@@ -183,7 +183,7 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
     private async Task<string> ResolveFilePathUnsafeAsync(CancellationToken cancellationToken)
     {
         var session = await _authService.GetSessionAsync(cancellationToken);
-        if (session?.IsValid != true || string.IsNullOrWhiteSpace(session.Email))
+        if (session is null || string.IsNullOrWhiteSpace(session.Email))
             return _legacyFilePath;
 
         var normalizedEmail = session.Email.Trim().ToLowerInvariant();

@@ -4,8 +4,7 @@ using OrcaAI.ViewModels;
 
 namespace OrcaAI.Pages;
 
-[QueryProperty(nameof(QuoteId), "quoteId")]
-public partial class QuoteEditorPage : ContentPage
+public partial class QuoteEditorPage : ContentPage, IQueryAttributable
 {
     private readonly QuoteEditorViewModel _viewModel;
     private bool _loaded;
@@ -17,16 +16,19 @@ public partial class QuoteEditorPage : ContentPage
         BindingContext = _viewModel = AppServices.GetRequiredService<QuoteEditorViewModel>();
     }
 
-    public string? QuoteId
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        get => _quoteId;
-        set => _quoteId = value;
+        _quoteId = query.TryGetValue("quoteId", out var value)
+            ? Convert.ToString(value)
+            : null;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (_loaded) return;
+        if (_loaded)
+            return;
+
         _loaded = true;
         await _viewModel.LoadAsync(_quoteId);
     }

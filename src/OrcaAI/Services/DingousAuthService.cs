@@ -28,16 +28,23 @@ public sealed class DingousAuthService : IAuthService
                 return null;
 
             var session = JsonSerializer.Deserialize<AuthSession>(json, JsonOptions);
-            if (session?.IsValid == true)
-                return session;
+            if (session is null || string.IsNullOrWhiteSpace(session.Email))
+            {
+                SecureStorage.Default.Remove(SessionKey);
+                return null;
+            }
+
+            // A identidade local é preservada mesmo quando o JWT expira.
+            // AppShell decide se a sessão ainda é válida; o armazenamento usa o email
+            // apenas para manter os dados locais sempre no arquivo correto da conta.
+            return session;
         }
         catch (Exception)
         {
             // SecureStorage pode ficar inválido após troca de backup/chave no dispositivo.
+            SecureStorage.Default.Remove(SessionKey);
+            return null;
         }
-
-        SecureStorage.Default.Remove(SessionKey);
-        return null;
     }
 
     public async Task<AuthSession> LoginWithGoogleAsync(CancellationToken cancellationToken = default)
@@ -65,7 +72,15 @@ public sealed class DingousAuthService : IAuthService
 
     public Task LogoutAsync()
     {
-        SecureStorage.Default.Remove(SessionKey);
+        try
+        {
+            SecureStorage.Default.Remove(SessionKey);
+        }
+        catch
+        {
+            // Logout deve continuar mesmo se o armazenamento seguro estiver indisponível.
+        }
+
         return Task.CompletedTask;
     }
 
@@ -93,13 +108,17 @@ public sealed class DingousAuthService : IAuthService
             throw new InvalidOperationException("A validade da sessão retornada pelo servidor é inválida.");
         }
 
+        var email = Get(parameters, "email")?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(email))
+            throw new InvalidOperationException("O Dingous ChatTrade não retornou o e-mail da conta.");
+
         return new AuthSession
         {
             AccessToken = token,
             ExpiresAt = expiresAt,
-            Name = Get(parameters, "name") ?? "Usuário",
-            Email = Get(parameters, "email") ?? string.Empty,
-            PictureUrl = Get(parameters, "picture") ?? string.Empty
+            Name = Get(parameters, "name")?.Trim() is { Length: > 0 } name ? name : "Usuário",
+            Email = email,
+            PictureUrl = Get(parameters, "picture")?.Trim() ?? string.Empty
         };
     }
 
@@ -148,8 +167,12 @@ public sealed class DingousAuthService : IAuthService
                 throw new InvalidOperationException("Resposta de autenticação inválida.");
 
             var callbackUri = new Uri($"http://127.0.0.1:{endpoint.Port}{parts[1]}");
-            if (!callbackUri.IsLoopback || !string.Equals(callbackUri.AbsolutePath.TrimEnd('/'), "/auth", StringComparison.OrdinalIgnoreCase))
+            if (!callbackUri.IsLoopback
+                || callbackUri.Port != endpoint.Port
+                || !string.Equals(callbackUri.AbsolutePath.TrimEnd('/'), "/auth", StringComparison.OrdinalIgnoreCase))
+            {
                 throw new InvalidOperationException("Callback de autenticação inválido.");
+            }
 
             var values = ParseQuery(callbackUri.Query);
 

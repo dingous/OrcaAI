@@ -3,8 +3,7 @@ using OrcaAI.ViewModels;
 
 namespace OrcaAI.Pages;
 
-[QueryProperty(nameof(ClientId), "clientId")]
-public partial class ClientFormPage : ContentPage
+public partial class ClientFormPage : ContentPage, IQueryAttributable
 {
     private readonly ClientFormViewModel _viewModel;
     private bool _loaded;
@@ -16,16 +15,19 @@ public partial class ClientFormPage : ContentPage
         BindingContext = _viewModel = AppServices.GetRequiredService<ClientFormViewModel>();
     }
 
-    public string? ClientId
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        get => _clientId;
-        set => _clientId = value;
+        _clientId = query.TryGetValue("clientId", out var value)
+            ? Convert.ToString(value)
+            : null;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (_loaded) return;
+        if (_loaded)
+            return;
+
         _loaded = true;
         await _viewModel.LoadAsync(_clientId);
     }

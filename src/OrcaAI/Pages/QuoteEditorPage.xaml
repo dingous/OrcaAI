@@ -21,7 +21,7 @@
                 <VerticalStackLayout Spacing="10">
                     <Label Text="1. Descreva o serviço" Style="{StaticResource SectionTitle}" />
                     <Editor Text="{Binding Description}" Placeholder="Ex.: Trocar 3 tomadas, instalar 2 luminárias e revisar o disjuntor do quarto." Style="{StaticResource EditorInput}" />
-                    <Button Text="✨ Gerar rascunho inteligente" Command="{Binding GenerateDraftCommand}" Style="{StaticResource SecondaryButton}" />
+                    <Button Text="✨ Gerar rascunho inteligente" Command="{Binding GenerateDraftCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SecondaryButton}" />
                     <Label Text="O modo local organiza a descrição sem enviar seus dados para serviços externos." Style="{StaticResource Muted}" />
                 </VerticalStackLayout>
             </Border>
@@ -42,18 +42,34 @@
                 <VerticalStackLayout Spacing="12">
                     <Grid ColumnDefinitions="*,Auto">
                         <Label Text="3. Itens e valores" Style="{StaticResource SectionTitle}" VerticalOptions="Center" />
-                        <Button Grid.Column="1" Text="+ Item" Command="{Binding AddItemCommand}" Style="{StaticResource SecondaryButton}" Padding="14,10" MinimumHeightRequest="44" />
+                        <Button Grid.Column="1" Text="+ Item" Command="{Binding AddItemCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SecondaryButton}" Padding="14,10" MinimumHeightRequest="44" />
                     </Grid>
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding Items}" Spacing="8">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:QuoteItem">
                                 <Border BackgroundColor="{StaticResource SurfaceMuted}" Stroke="{StaticResource Border}" Padding="10">
                                     <Border.StrokeShape><RoundRectangle CornerRadius="14" /></Border.StrokeShape>
-                                    <Grid ColumnDefinitions="*,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="6">
-                                        <Entry Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Description}" Placeholder="Descrição" Style="{StaticResource Input}" />
-                                        <Entry Grid.Row="1" Grid.Column="0" Text="{Binding Quantity}" Keyboard="Numeric" Placeholder="Qtd" Style="{StaticResource Input}" />
-                                        <Entry Grid.Row="1" Grid.Column="1" Text="{Binding UnitPrice}" Keyboard="Numeric" Placeholder="Valor unitário" Style="{StaticResource Input}" />
-                                        <Button Grid.Row="1" Grid.Column="2" Text="×" CommandParameter="{Binding .}" Clicked="OnRemoveItemClicked" Style="{StaticResource DangerButton}" WidthRequest="46" HeightRequest="46" Padding="0" VerticalOptions="Center" />
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                        <Entry Grid.Row="0" Grid.Column="0" Text="{Binding Description}" Placeholder="Descrição" Style="{StaticResource Input}" />
+                                        <Button Grid.Row="0" Grid.Column="1"
+                                                Text="×"
+                                                CommandParameter="{Binding .}"
+                                                Clicked="OnRemoveItemClicked"
+                                                Style="{StaticResource DangerButton}"
+                                                WidthRequest="46"
+                                                HeightRequest="46"
+                                                Padding="0"
+                                                VerticalOptions="Center" />
+                                        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="8">
+                                            <VerticalStackLayout Spacing="4">
+                                                <Label Text="Quantidade" Style="{StaticResource FieldLabel}" />
+                                                <Entry Text="{Binding Quantity}" Keyboard="Numeric" Placeholder="Qtd" Style="{StaticResource Input}" />
+                                            </VerticalStackLayout>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                                <Label Text="Valor unitário" Style="{StaticResource FieldLabel}" />
+                                                <Entry Text="{Binding UnitPrice}" Keyboard="Numeric" Placeholder="R$ 0,00" Style="{StaticResource Input}" />
+                                            </VerticalStackLayout>
+                                        </Grid>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
