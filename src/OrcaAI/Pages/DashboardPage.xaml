@@ -20,7 +20,7 @@
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Crie um orçamento agora" TextColor="White" FontSize="23" FontAttributes="Bold" />
                         <Label Text="Descreva o serviço, ajuste os valores e compartilhe o PDF com o cliente." TextColor="#EFEDFF" FontSize="14" />
-                        <Button Text="+ Novo orçamento" Command="{Binding NewQuoteCommand}" BackgroundColor="White" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" CornerRadius="14" Margin="0,8,0,0" HorizontalOptions="Start" />
+                        <Button Text="+ Novo orçamento" Command="{Binding NewQuoteCommand}" IsEnabled="{Binding IsNotBusy}" BackgroundColor="White" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" CornerRadius="14" Margin="0,8,0,0" HorizontalOptions="Start" />
                     </VerticalStackLayout>
                     <Image Grid.Column="1" Source="spark.svg" WidthRequest="60" HeightRequest="60" Opacity="0.95" VerticalOptions="Center" />
                 </Grid>
@@ -43,8 +43,8 @@
             </Grid>
 
             <VerticalStackLayout Spacing="10">
-                <Button Text="+ Adicionar cliente" Style="{StaticResource SecondaryButton}" Command="{Binding AddClientCommand}" />
-                <Button Text="Ver orçamentos" Style="{StaticResource SecondaryButton}" Command="{Binding ViewQuotesCommand}" />
+                <Button Text="+ Adicionar cliente" Style="{StaticResource SecondaryButton}" Command="{Binding AddClientCommand}" IsEnabled="{Binding IsNotBusy}" />
+                <Button Text="Ver orçamentos" Style="{StaticResource SecondaryButton}" Command="{Binding ViewQuotesCommand}" IsEnabled="{Binding IsNotBusy}" />
             </VerticalStackLayout>
 
             <Border IsVisible="{Binding HasError}" BackgroundColor="{StaticResource DangerSoft}" StrokeThickness="0" Padding="12">
