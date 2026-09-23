@@ -35,7 +35,8 @@ if (Test-Path -LiteralPath $keyStore) {
 }
 
 $random = New-Object byte[] 36
-[Security.Cryptography.RandomNumberGenerator]::Fill($random)
+$rng = [Security.Cryptography.RandomNumberGenerator]::Create()
+try { $rng.GetBytes($random) } finally { $rng.Dispose() }
 $password = [Convert]::ToBase64String($random).TrimEnd('=').Replace('+','A').Replace('/','B')
 $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 $securePassword | ConvertFrom-SecureString | Set-Content -LiteralPath $passwordFile -Encoding UTF8
@@ -50,7 +51,7 @@ try {
         '-keyalg', 'RSA',
         '-keysize', '4096',
         '-validity', '10000',
-        '-dname', 'CN=Dingous OrçaAI, OU=Mobile, O=Dingous, L=Uberlandia, ST=Minas Gerais, C=BR'
+        '-dname', 'CN=Dingous OrcaAI, OU=Mobile, O=Dingous, L=Uberlandia, ST=Minas Gerais, C=BR'
     )
     & $keytool @keyArgs
 
