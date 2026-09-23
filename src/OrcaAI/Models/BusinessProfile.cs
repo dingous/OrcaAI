@@ -2,7 +2,7 @@ namespace OrcaAI.Models;
 
 public sealed class BusinessProfile
 {
-    public string BusinessName { get; set; } = "Minha empresa";
+    public string BusinessName { get; set; } = string.Empty;
     public string OwnerName { get; set; } = string.Empty;
     public string Document { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;

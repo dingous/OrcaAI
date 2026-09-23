@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using System.Windows.Input;
 using Microsoft.Maui.ApplicationModel;
 using OrcaAI.Infrastructure;
@@ -120,7 +121,7 @@ public sealed class SettingsViewModel : BaseViewModel
         }
 
         if (!string.IsNullOrWhiteSpace(Email)
-            && !Email.Contains('@'))
+            && !MailAddress.TryCreate(Email.Trim(), out _))
         {
             SetError("Informe um e-mail válido ou deixe o campo em branco.");
             return;

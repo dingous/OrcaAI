@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using System.Windows.Input;
 using OrcaAI.Infrastructure;
 using OrcaAI.Models;
@@ -82,7 +83,7 @@ public sealed class ClientFormViewModel : BaseViewModel
         }
 
         if (!string.IsNullOrWhiteSpace(Email)
-            && !Email.Contains('@'))
+            && !MailAddress.TryCreate(Email.Trim(), out _))
         {
             SetError("Informe um e-mail válido ou deixe o campo em branco.");
             return;

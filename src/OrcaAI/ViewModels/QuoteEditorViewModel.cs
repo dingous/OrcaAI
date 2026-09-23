@@ -263,6 +263,13 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
     private async Task ShareAsync()
     {
+        if (string.IsNullOrWhiteSpace(_profile.BusinessName)
+            || string.Equals(_profile.BusinessName.Trim(), "Minha empresa", StringComparison.OrdinalIgnoreCase))
+        {
+            SetError("Preencha o nome da empresa ou profissional na aba Empresa antes de compartilhar o PDF.");
+            return;
+        }
+
         var quote = await SaveAsync(false);
         if (quote is null)
             return;
