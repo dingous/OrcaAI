@@ -11,19 +11,19 @@
         <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="PlaceholderColor" Value="#969AAC" />
-        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="50" />
     </Style>
 
     <Style TargetType="Picker">
         <Setter Property="BackgroundColor" Value="{StaticResource SurfaceMuted}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="50" />
     </Style>
 
     <Style TargetType="DatePicker">
         <Setter Property="BackgroundColor" Value="{StaticResource SurfaceMuted}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="50" />
     </Style>
 
     <Style x:Key="PageTitle" TargetType="Label">
@@ -120,7 +120,7 @@
         <Setter Property="BackgroundColor" Value="{StaticResource SurfaceMuted}" />
         <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
         <Setter Property="PlaceholderColor" Value="#969AAC" />
-        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="MinimumHeightRequest" Value="50" />
         <Setter Property="Margin" Value="0,2" />
     </Style>
 
