@@ -14,7 +14,7 @@
                 <Label Text="Clientes" Style="{StaticResource PageTitle}" />
                 <Label Text="Sua base de clientes fica armazenada no dispositivo." Style="{StaticResource Muted}" />
             </VerticalStackLayout>
-            <Button Grid.Column="1" Text="+ Novo" Command="{Binding AddCommand}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" Padding="16,11" />
+            <Button Grid.Column="1" Text="+ Novo" Command="{Binding AddCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" Padding="16,11" />
         </Grid>
 
         <SearchBar Grid.Row="1" Placeholder="Buscar por nome, telefone ou e-mail" Text="{Binding Search}" />
