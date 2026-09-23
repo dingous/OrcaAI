@@ -15,7 +15,7 @@ public sealed class SimplePdfService : IPdfService
         cancellationToken.ThrowIfCancellationRequested();
 
         var lines = BuildLines(quote, profile);
-        var pages = Paginate(lines, 43);
+        var pages = Paginate(lines, 43, quote.Number);
         var bytes = BuildPdf(pages);
 
         var safeNumber = string.Concat(quote.Number.Select(ch => char.IsLetterOrDigit(ch) || ch is '-' or '_' ? ch : '_'));
@@ -140,13 +140,35 @@ public sealed class SimplePdfService : IPdfService
         return PdfEncoding.GetString(PdfEncoding.GetBytes(normalized.Trim()));
     }
 
-    private static List<List<PdfLine>> Paginate(List<PdfLine> lines, int pageSize)
+    private static List<List<PdfLine>> Paginate(List<PdfLine> lines, int pageSize, string quoteNumber)
     {
-        var result = new List<List<PdfLine>>();
-        for (var i = 0; i < lines.Count; i += pageSize)
-            result.Add(lines.Skip(i).Take(pageSize).ToList());
+        if (lines.Count == 0)
+            return [[]];
 
-        return result.Count == 0 ? [[]] : result;
+        var result = new List<List<PdfLine>>();
+        var offset = 0;
+        var pageIndex = 0;
+
+        while (offset < lines.Count)
+        {
+            var page = new List<PdfLine>();
+            var capacity = pageSize;
+
+            if (pageIndex > 0)
+            {
+                page.Add(new("ORÇAAI · ORÇAMENTO PROFISSIONAL", true, 11));
+                page.Add(new($"Nº {quoteNumber} · CONTINUAÇÃO", true, 9));
+                page.Add(new(string.Empty));
+                capacity -= 3;
+            }
+
+            page.AddRange(lines.Skip(offset).Take(capacity));
+            offset += capacity;
+            result.Add(page);
+            pageIndex++;
+        }
+
+        return result;
     }
 
     private static byte[] BuildPdf(List<List<PdfLine>> pages)

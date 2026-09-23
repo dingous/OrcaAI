@@ -17,9 +17,9 @@ public sealed class DashboardViewModel : BaseViewModel
     public DashboardViewModel(IOrcaDataStore store)
     {
         _store = store;
-        NewQuoteCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(QuoteEditorPage)));
-        AddClientCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(ClientFormPage)));
-        ViewQuotesCommand = new AsyncRelayCommand(() => NavigateAsync("//app/quotes"));
+        NewQuoteCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(QuoteEditorPage)), () => !IsBusy);
+        AddClientCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(ClientFormPage)), () => !IsBusy);
+        ViewQuotesCommand = new AsyncRelayCommand(() => NavigateAsync("//app/quotes"), () => !IsBusy);
     }
 
     public string Clients { get => _clients; private set => SetProperty(ref _clients, value); }
@@ -36,7 +36,7 @@ public sealed class DashboardViewModel : BaseViewModel
         if (IsBusy)
             return;
 
-        IsBusy = true;
+        SetBusy(true);
         try
         {
             ClearError();
@@ -52,12 +52,16 @@ public sealed class DashboardViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            SetBusy(false);
         }
     }
 
     private async Task NavigateAsync(string route)
     {
+        if (IsBusy)
+            return;
+
+        SetBusy(true);
         try
         {
             ClearError();
@@ -67,5 +71,17 @@ public sealed class DashboardViewModel : BaseViewModel
         {
             SetError("Não foi possível abrir esta tela. Tente novamente.", ex);
         }
+        finally
+        {
+            SetBusy(false);
+        }
+    }
+
+    private void SetBusy(bool value)
+    {
+        IsBusy = value;
+        (NewQuoteCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (AddClientCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (ViewQuotesCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
     }
 }

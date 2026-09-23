@@ -81,11 +81,11 @@
 
                     <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="8">
                         <Label Text="Subtotal" Grid.Row="0" Grid.Column="0" Style="{StaticResource Muted}" VerticalOptions="Center" />
-                        <Label Text="{Binding SubtotalText}" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" />
+                        <Label Text="{Binding SubtotalText}" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" HorizontalTextAlignment="End" LineBreakMode="TailTruncation" />
                         <Label Text="Desconto" Grid.Row="1" Grid.Column="0" Style="{StaticResource Muted}" VerticalOptions="Center" />
                         <Entry Text="{Binding Discount}" MaxLength="24" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" HorizontalTextAlignment="End" WidthRequest="130" Style="{StaticResource Input}" />
                         <Label Text="TOTAL" Grid.Row="2" Grid.Column="0" FontSize="18" FontAttributes="Bold" VerticalOptions="Center" />
-                        <Label Text="{Binding TotalText}" Grid.Row="2" Grid.Column="1" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Accent}" />
+                        <Label Text="{Binding TotalText}" Grid.Row="2" Grid.Column="1" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Accent}" HorizontalTextAlignment="End" LineBreakMode="TailTruncation" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>

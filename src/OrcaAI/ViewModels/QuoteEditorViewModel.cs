@@ -30,10 +30,10 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         _store = store;
         _ai = ai;
         _pdf = pdf;
-        GenerateDraftCommand = new AsyncRelayCommand(GenerateDraftAsync);
-        AddItemCommand = new Command(AddItem);
-        SaveCommand = new AsyncRelayCommand(() => SaveAsync(true));
-        ShareCommand = new AsyncRelayCommand(ShareAsync);
+        GenerateDraftCommand = new AsyncRelayCommand(GenerateDraftAsync, () => !IsBusy);
+        AddItemCommand = new Command(AddItem, () => !IsBusy);
+        SaveCommand = new AsyncRelayCommand(() => SaveAsync(true), () => !IsBusy);
+        ShareCommand = new AsyncRelayCommand(ShareAsync, () => !IsBusy);
         StatusOptions =
         [
             new(QuoteStatus.Draft, "Rascunho"),
@@ -107,7 +107,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
     public async Task LoadAsync(string? id)
     {
-        IsBusy = true;
+        SetBusy(true);
         try
         {
             ClearError();
@@ -155,7 +155,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            SetBusy(false);
         }
     }
 
@@ -178,9 +178,10 @@ public sealed class QuoteEditorViewModel : BaseViewModel
             return;
         }
 
-        IsBusy = true;
+        SetBusy(true);
         try
         {
+            _profile = await _store.GetBusinessProfileAsync();
             var draft = await _ai.CreateDraftAsync(Description, _profile);
             Title = draft.Title;
             Description = draft.Description;
@@ -192,7 +193,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            SetBusy(false);
         }
     }
 
@@ -207,7 +208,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         RaiseTotals();
     }
 
-    private async Task<Quote?> SaveAsync(bool navigateBack)
+    private async Task<Quote?> SaveAsync(bool navigateBack, bool manageBusy = true)
     {
         ClearError();
 
@@ -266,7 +267,9 @@ public sealed class QuoteEditorViewModel : BaseViewModel
             return null;
         }
 
-        IsBusy = true;
+        if (manageBusy)
+            SetBusy(true);
+
         try
         {
             var quote = _loaded ?? new Quote { Number = Number };
@@ -299,51 +302,72 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         }
         finally
         {
-            IsBusy = false;
+            if (manageBusy)
+                SetBusy(false);
         }
     }
 
     private async Task ShareAsync()
     {
+        if (IsBusy)
+            return;
+
+        SetBusy(true);
         try
         {
-            _profile = await _store.GetBusinessProfileAsync();
-        }
-        catch (Exception ex)
-        {
-            SetError("Não foi possível carregar os dados da empresa para gerar o PDF.", ex);
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(_profile.BusinessName)
-            || string.Equals(_profile.BusinessName.Trim(), "Minha empresa", StringComparison.OrdinalIgnoreCase))
-        {
-            SetError("Preencha o nome da empresa ou profissional na aba Empresa antes de compartilhar o PDF.");
-            return;
-        }
-
-        var quote = await SaveAsync(false);
-        if (quote is null)
-            return;
-
-        IsBusy = true;
-        try
-        {
-            var path = await _pdf.GenerateQuoteAsync(quote, _profile);
-            await Share.Default.RequestAsync(new ShareFileRequest
+            try
             {
-                Title = "Compartilhar orçamento",
-                File = new ShareFile(path)
-            });
-        }
-        catch (Exception ex)
-        {
-            SetError("Não foi possível gerar ou compartilhar o PDF. Tente novamente.", ex);
+                _profile = await _store.GetBusinessProfileAsync();
+            }
+            catch (Exception ex)
+            {
+                SetError("Não foi possível carregar os dados da empresa para gerar o PDF.", ex);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_profile.BusinessName)
+                || string.Equals(_profile.BusinessName.Trim(), "Minha empresa", StringComparison.OrdinalIgnoreCase))
+            {
+                SetError("Preencha o nome da empresa ou profissional na aba Empresa antes de compartilhar o PDF.");
+                return;
+            }
+
+            var quote = await SaveAsync(false, manageBusy: false);
+            if (quote is null)
+                return;
+
+            try
+            {
+                var path = await _pdf.GenerateQuoteAsync(quote, _profile);
+                await Share.Default.RequestAsync(new ShareFileRequest
+                {
+                    Title = "Compartilhar orçamento",
+                    File = new ShareFile(path)
+                });
+            }
+            catch (Exception ex)
+            {
+                SetError("Não foi possível gerar ou compartilhar o PDF. Tente novamente.", ex);
+            }
         }
         finally
         {
-            IsBusy = false;
+            SetBusy(false);
         }
+    }
+
+    private void SetBusy(bool value)
+    {
+        IsBusy = value;
+        RaiseCommandStates();
+    }
+
+    private void RaiseCommandStates()
+    {
+        (GenerateDraftCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (SaveCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (ShareCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (AddItemCommand as Command)?.ChangeCanExecute();
     }
 
     private void ReplaceItems(IEnumerable<QuoteItem> items)

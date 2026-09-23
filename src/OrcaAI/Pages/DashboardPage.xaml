@@ -33,7 +33,7 @@
                 </Grid>
             </Border>
 
-            <Label Text="Seu negócio" Style="{StaticResource SectionTitle}" />
+            <Label Text="Visão geral" Style="{StaticResource SectionTitle}" />
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
                 <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="4"><Label Text="Clientes" Style="{StaticResource Muted}" /><Label Text="{Binding Clients}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" /></VerticalStackLayout>
@@ -45,7 +45,7 @@
                     <VerticalStackLayout Spacing="4"><Label Text="Pendentes" Style="{StaticResource Muted}" /><Label Text="{Binding Pending}" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource Warning}" /></VerticalStackLayout>
                 </Border>
                 <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Card}">
-                    <VerticalStackLayout Spacing="4"><Label Text="Aprovado" Style="{StaticResource Muted}" /><Label Text="{Binding ApprovedValue}" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Accent}" LineBreakMode="TailTruncation" /></VerticalStackLayout>
+                    <VerticalStackLayout Spacing="4"><Label Text="Valor aprovado" Style="{StaticResource Muted}" /><Label Text="{Binding ApprovedValue}" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Accent}" LineBreakMode="TailTruncation" /></VerticalStackLayout>
                 </Border>
             </Grid>
 

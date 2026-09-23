@@ -42,7 +42,15 @@ public sealed class DingousAuthService : IAuthService
         catch (Exception)
         {
             // SecureStorage pode ficar inválido após troca de backup/chave no dispositivo.
-            SecureStorage.Default.Remove(SessionKey);
+            try
+            {
+                SecureStorage.Default.Remove(SessionKey);
+            }
+            catch
+            {
+                // Se o armazenamento seguro estiver indisponível, ainda assim tratamos como sem sessão.
+            }
+
             return null;
         }
     }
@@ -78,9 +86,6 @@ public sealed class DingousAuthService : IAuthService
 
     private static AuthSession ParseSession(IReadOnlyDictionary<string, string> parameters, string expectedState)
     {
-        if (parameters.TryGetValue("error", out var error) && !string.IsNullOrWhiteSpace(error))
-            throw new InvalidOperationException(error);
-
         if (!parameters.TryGetValue("state", out var state)
             || state.Length != expectedState.Length
             || !CryptographicOperations.FixedTimeEquals(
@@ -88,6 +93,15 @@ public sealed class DingousAuthService : IAuthService
                 Encoding.UTF8.GetBytes(expectedState)))
         {
             throw new InvalidOperationException("A resposta de autenticação não corresponde à solicitação iniciada pelo aplicativo.");
+        }
+
+        if (parameters.TryGetValue("error", out var error) && !string.IsNullOrWhiteSpace(error))
+        {
+            var safeError = error.Trim();
+            if (safeError.Length > 300)
+                safeError = safeError[..300];
+
+            throw new InvalidOperationException(safeError);
         }
 
         if (!parameters.TryGetValue("access_token", out var token) || string.IsNullOrWhiteSpace(token))
