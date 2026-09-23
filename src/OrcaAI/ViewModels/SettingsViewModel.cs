@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using Microsoft.Maui.ApplicationModel;
 using OrcaAI.Infrastructure;
 using OrcaAI.Models;
 using OrcaAI.Services;
@@ -7,6 +8,10 @@ namespace OrcaAI.ViewModels;
 
 public sealed class SettingsViewModel : BaseViewModel
 {
+    private static readonly Uri PrivacyPolicyUri = new("https://www.dingous.com.br/privacy-policy");
+    private static readonly Uri TermsUri = new("https://www.dingous.com.br/term-service");
+    private static readonly Uri AccountDeletionUri = new("https://www.dingous.com.br/exclusao-de-conta");
+
     private readonly IOrcaDataStore _store;
     private readonly IAuthService _authService;
     private string _businessName = string.Empty;
@@ -28,6 +33,9 @@ public sealed class SettingsViewModel : BaseViewModel
         _authService = authService;
         SaveCommand = new AsyncRelayCommand(SaveAsync, () => !IsBusy);
         LogoutCommand = new AsyncRelayCommand(LogoutAsync, () => !IsBusy);
+        OpenPrivacyCommand = new AsyncRelayCommand(() => OpenExternalAsync(PrivacyPolicyUri), () => !IsBusy);
+        OpenTermsCommand = new AsyncRelayCommand(() => OpenExternalAsync(TermsUri), () => !IsBusy);
+        RequestAccountDeletionCommand = new AsyncRelayCommand(() => OpenExternalAsync(AccountDeletionUri), () => !IsBusy);
     }
 
     public string BusinessName { get => _businessName; set => SetProperty(ref _businessName, value); }
@@ -55,6 +63,9 @@ public sealed class SettingsViewModel : BaseViewModel
     public bool HasSuccess => !string.IsNullOrWhiteSpace(SuccessMessage);
     public ICommand SaveCommand { get; }
     public ICommand LogoutCommand { get; }
+    public ICommand OpenPrivacyCommand { get; }
+    public ICommand OpenTermsCommand { get; }
+    public ICommand RequestAccountDeletionCommand { get; }
 
     public async Task LoadAsync()
     {
@@ -98,6 +109,7 @@ public sealed class SettingsViewModel : BaseViewModel
     {
         ErrorMessage = string.Empty;
         SuccessMessage = string.Empty;
+
         if (string.IsNullOrWhiteSpace(BusinessName))
         {
             ErrorMessage = "Informe o nome da empresa ou profissional.";
@@ -148,9 +160,26 @@ public sealed class SettingsViewModel : BaseViewModel
         }
     }
 
+    private async Task OpenExternalAsync(Uri uri)
+    {
+        ErrorMessage = string.Empty;
+        try
+        {
+            if (!await Launcher.Default.OpenAsync(uri))
+                ErrorMessage = "Não foi possível abrir a página no navegador.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Não foi possível abrir a página. " + ex.Message;
+        }
+    }
+
     private void RaiseCommandStates()
     {
         (SaveCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (LogoutCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (OpenPrivacyCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (OpenTermsCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (RequestAccountDeletionCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
     }
 }

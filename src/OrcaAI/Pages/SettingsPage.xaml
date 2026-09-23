@@ -46,6 +46,16 @@
                 </VerticalStackLayout>
             </Border>
 
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Privacidade e conta" Style="{StaticResource SectionTitle}" />
+                    <Label Text="Consulte como seus dados são tratados e solicite a exclusão da conta quando desejar." Style="{StaticResource Muted}" />
+                    <Button Text="Política de Privacidade" Command="{Binding OpenPrivacyCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SecondaryButton}" />
+                    <Button Text="Termos de Serviço" Command="{Binding OpenTermsCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SecondaryButton}" />
+                    <Button Text="Solicitar exclusão da conta" Command="{Binding RequestAccountDeletionCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource DangerButton}" />
+                </VerticalStackLayout>
+            </Border>
+
             <Border IsVisible="{Binding HasError}" BackgroundColor="{StaticResource DangerSoft}" StrokeThickness="0" Padding="12">
                 <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
                 <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />

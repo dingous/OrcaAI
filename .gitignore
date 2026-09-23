@@ -8,4 +8,7 @@
 *.aab
 *.msix
 *.pfx
+*.p12
 *.keystore
+*.jks
+*.dpapi

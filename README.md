@@ -1,80 +1,90 @@
 # OrçaAI — .NET MAUI 10
 
-MVP multiplataforma para autônomos e pequenos negócios criarem orçamentos profissionais rapidamente.
+Aplicativo multiplataforma para profissionais autônomos e pequenos negócios criarem, organizarem e compartilharem orçamentos profissionais.
 
-## O que já está pronto
+## Estado atual
 
-- Dashboard com clientes, orçamentos do mês, pendências e total aprovado.
-- Cadastro, edição, busca e exclusão de clientes.
-- Criação e edição de orçamentos.
-- Gerador local de rascunho a partir de texto, sem API e sem custo por uso.
-- Extração simples de quantidades da descrição, por exemplo: `trocar 3 tomadas e instalar 2 luminárias`.
-- Itens editáveis, desconto, validade, observações e status.
-- Persistência local em JSON no `FileSystem.AppDataDirectory`.
-- Geração de PDF sem biblioteca paga e compartilhamento usando a API nativa do MAUI.
-- Dados da empresa/profissional no PDF.
-- Layout responsivo para Android/iOS e desktop, com largura máxima de conteúdo no desktop.
-- Sem chave de IA dentro do aplicativo.
-
-## Stack
-
-- .NET 10
-- .NET MAUI 10
-- XAML + MVVM leve
-- `System.Text.Json`
-- `Microsoft.Maui.ApplicationModel.DataTransfer` para compartilhamento
-- Sem banco externo, sem serviço pago e sem SDK de IA no MVP
+- .NET MAUI 10.
+- Android explicitamente direcionado ao Android 16 / API 36.
+- Android mínimo: API 24.
+- Application ID: `br.com.dingous.orcaai`.
+- Login Google por meio do backend Dingous ChatTrade.
+- Sessão protegida com `SecureStorage`.
+- Dados de clientes e orçamentos locais, isolados por conta autenticada.
+- Backup automático Android desativado para reduzir exposição de dados locais.
+- HTTP sem TLS desativado no Android.
+- Release Android configurado para gerar AAB.
+- Geração local de PDF e compartilhamento nativo.
+- Sem chave Google, senha ou segredo dentro do aplicativo.
 
 ## Executar
 
-Pré-requisitos: .NET 10 SDK e workload .NET MAUI instalados.
+Pré-requisitos:
 
-```bash
-cd src/OrcaAI
+- .NET 10 SDK;
+- workload .NET MAUI/Android;
+- Android SDK com API 36.
+
+```powershell
+cd src\OrcaAI
 dotnet restore
+dotnet build -f net10.0-android36.0 -c Debug
 ```
 
 Windows:
 
-```bash
-dotnet build -f net10.0-windows10.0.19041.0
+```powershell
+dotnet build -f net10.0-windows10.0.19041.0 -c Debug
 ```
 
-Android:
+## Google Play
 
-```bash
-dotnet build -f net10.0-android
+### 1. Criar a chave de upload
+
+A chave fica fora do Git em `%LOCALAPPDATA%\Dingous\AndroidSigning\br.com.dingous.orcaai`.
+
+```powershell
+.\tools\Initialize-PlaySigning.ps1
 ```
 
-Também é possível abrir `OrcaAI.sln` no Visual Studio com o workload .NET MAUI.
+A senha é armazenada usando DPAPI do Windows. Faça backup seguro do `upload.keystore` e da senha antes de trocar de computador.
 
-> Para compilar/assinar iOS é necessário o toolchain da Apple e, em desenvolvimento Windows, um Mac conectado.
+### 2. Gerar AAB Release assinado
 
-## Arquitetura de IA
-
-`IAiQuoteDraftService` é a abstração usada pela tela. Hoje ela aponta para `LocalAiQuoteDraftService`, que é gratuito e funciona offline.
-
-Para produção com um LLM, mantenha essa interface e implemente um adaptador HTTP que converse com **seu backend**. O backend guarda a chave do provedor e retorna apenas um `QuoteDraft`. Não coloque segredo de OpenAI, Azure OpenAI ou outro provedor no app MAUI.
-
-Fluxo recomendado:
-
-```text
-MAUI -> POST /api/quotes/draft -> seu backend -> modelo de IA
+```powershell
+.\tools\Publish-GooglePlay.ps1
 ```
 
-Assim você consegue aplicar autenticação, limites por plano, auditoria, cache e proteção da chave.
+O script usa `net10.0-android36.0`, Release, formato AAB e a chave local de upload. Nenhuma credencial é versionada.
+
+A primeira versão deve ser enviada manualmente ao Google Play Console.
+
+## Privacidade e exclusão de conta
+
+O aplicativo contém caminhos visíveis para:
+
+- Política de Privacidade: https://www.dingous.com.br/privacy-policy
+- Exclusão de conta: https://www.dingous.com.br/exclusao-de-conta
+- Termos de Serviço: https://www.dingous.com.br/term-service
+
+A tela Empresa disponibiliza os três links.
+
+Consulte:
+
+- `docs/google-play-data-safety.md`
+- `docs/google-play-listing.md`
 
 ## Persistência
 
-O arquivo `orcaai-data.json` é gravado na pasta privada do aplicativo. Para o MVP isso elimina custo de banco e permite uso offline. Na evolução comercial, a interface `IOrcaDataStore` pode ser trocada por sincronização com backend sem reescrever as telas.
+Os dados de clientes, orçamentos e perfil comercial são armazenados localmente em JSON no `FileSystem.AppDataDirectory`. O arquivo é separado por conta Google autenticada.
 
-## Próximos passos antes da loja
+O login utiliza o Dingous ChatTrade, mas a versão atual não sincroniza clientes, itens, preços ou PDFs com o backend.
 
-1. Definir nome jurídico/política de privacidade e ícones finais.
-2. Criar assinatura do Android e perfis de distribuição Apple/Windows.
-3. Adicionar autenticação/backend somente quando houver necessidade de sincronização ou plano pago.
-4. Conectar uma IA remota via backend caso o gerador local não seja suficiente para o nicho validado.
-5. Testar PDF e compartilhamento em dispositivos reais.
+## Arquitetura de IA
+
+`IAiQuoteDraftService` continua sendo a abstração do gerador de rascunhos. A implementação atual funciona localmente e sem custo de API.
+
+Caso uma IA remota seja usada no futuro, a chave deve permanecer no backend Dingous e nunca no aplicativo MAUI.
 
 ## Estrutura
 
@@ -87,4 +97,7 @@ src/OrcaAI
 ├── Infrastructure
 ├── Resources
 └── Platforms
+
+docs/
+tools/
 ```
