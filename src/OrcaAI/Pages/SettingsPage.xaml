@@ -7,30 +7,63 @@
     x:DataType="vm:SettingsViewModel"
     Title="Empresa">
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="12" MaximumWidthRequest="720" HorizontalOptions="Fill">
-            <Label Text="Sua empresa" Style="{StaticResource PageTitle}" />
-            <Label Text="Estes dados aparecem no PDF e ajudam o gerador local a montar os itens." Style="{StaticResource Muted}" />
+        <VerticalStackLayout Padding="24" Spacing="18" MaximumWidthRequest="760" HorizontalOptions="Fill">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Empresa" Style="{StaticResource PageTitle}" />
+                <Label Text="Personalize os dados que aparecem nos seus orçamentos." Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
 
-            <Label Text="Nome da empresa/profissional *" Style="{StaticResource Muted}" />
-            <Entry Text="{Binding BusinessName}" Placeholder="Ex.: Diego Serviços Elétricos" Style="{StaticResource Input}" />
-            <Label Text="Responsável" Style="{StaticResource Muted}" />
-            <Entry Text="{Binding OwnerName}" Style="{StaticResource Input}" />
-            <Label Text="CPF/CNPJ" Style="{StaticResource Muted}" />
-            <Entry Text="{Binding Document}" Style="{StaticResource Input}" />
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <VerticalStackLayout><Label Text="Telefone" Style="{StaticResource Muted}" /><Entry Text="{Binding Phone}" Keyboard="Telephone" Style="{StaticResource Input}" /></VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="1"><Label Text="E-mail" Style="{StaticResource Muted}" /><Entry Text="{Binding Email}" Keyboard="Email" Style="{StaticResource Input}" /></VerticalStackLayout>
-            </Grid>
-            <Label Text="Cidade" Style="{StaticResource Muted}" />
-            <Entry Text="{Binding City}" Style="{StaticResource Input}" />
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <VerticalStackLayout><Label Text="Validade padrão (dias)" Style="{StaticResource Muted}" /><Entry Text="{Binding DefaultValidityDays}" Keyboard="Numeric" Style="{StaticResource Input}" /></VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="1"><Label Text="Mão de obra padrão (R$)" Style="{StaticResource Muted}" /><Entry Text="{Binding DefaultLaborValue}" Keyboard="Numeric" Style="{StaticResource Input}" /></VerticalStackLayout>
-            </Grid>
+            <Border Style="{StaticResource Card}">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="14">
+                    <Border Grid.RowSpan="2" WidthRequest="52" HeightRequest="52" BackgroundColor="{StaticResource PrimarySoft}" StrokeThickness="0" VerticalOptions="Center">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="18" /></Border.StrokeShape>
+                        <Label Text="{Binding UserInitials}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="{StaticResource PrimaryDark}" FontAttributes="Bold" FontSize="17" />
+                    </Border>
+                    <Label Grid.Column="1" Text="{Binding UserName}" FontAttributes="Bold" FontSize="17" TextColor="{StaticResource TextPrimary}" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding UserEmail}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
+                </Grid>
+            </Border>
 
-            <Label IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
-            <Label IsVisible="{Binding HasSuccess}" Text="{Binding SuccessMessage}" TextColor="{StaticResource Accent}" />
-            <Button Text="Salvar dados" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" />
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Dados do orçamento" Style="{StaticResource SectionTitle}" />
+                    <Label Text="Nome da empresa/profissional *" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding BusinessName}" Placeholder="Ex.: Diego Serviços Elétricos" Style="{StaticResource Input}" />
+                    <Label Text="Responsável" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding OwnerName}" Style="{StaticResource Input}" />
+                    <Label Text="CPF/CNPJ" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Document}" Style="{StaticResource Input}" />
+                    <Label Text="Telefone" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Phone}" Keyboard="Telephone" Style="{StaticResource Input}" />
+                    <Label Text="E-mail" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Email}" Keyboard="Email" Style="{StaticResource Input}" />
+                    <Label Text="Cidade" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding City}" Style="{StaticResource Input}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Validade (dias)" Style="{StaticResource FieldLabel}" />
+                            <Entry Text="{Binding DefaultValidityDays}" Keyboard="Numeric" Style="{StaticResource Input}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Mão de obra (R$)" Style="{StaticResource FieldLabel}" />
+                            <Entry Text="{Binding DefaultLaborValue}" Keyboard="Numeric" Style="{StaticResource Input}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border IsVisible="{Binding HasError}" BackgroundColor="{StaticResource DangerSoft}" StrokeThickness="0" Padding="12">
+                <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
+            </Border>
+            <Border IsVisible="{Binding HasSuccess}" BackgroundColor="{StaticResource AccentSoft}" StrokeThickness="0" Padding="12">
+                <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                <Label Text="{Binding SuccessMessage}" TextColor="{StaticResource AccentDark}" />
+            </Border>
+
+            <Button Text="Salvar dados" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButton}" />
+            <Button Text="Sair da conta" Command="{Binding LogoutCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource DangerButton}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

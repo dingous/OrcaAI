@@ -10,8 +10,14 @@ public abstract class BaseViewModel : ObservableObject
     public bool IsBusy
     {
         get => _isBusy;
-        protected set => SetProperty(ref _isBusy, value);
+        protected set
+        {
+            if (SetProperty(ref _isBusy, value))
+                OnPropertyChanged(nameof(IsNotBusy));
+        }
     }
+
+    public bool IsNotBusy => !IsBusy;
 
     public string ErrorMessage
     {

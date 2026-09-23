@@ -8,6 +8,7 @@ namespace OrcaAI.ViewModels;
 public sealed class SettingsViewModel : BaseViewModel
 {
     private readonly IOrcaDataStore _store;
+    private readonly IAuthService _authService;
     private string _businessName = string.Empty;
     private string _ownerName = string.Empty;
     private string _document = string.Empty;
@@ -17,11 +18,16 @@ public sealed class SettingsViewModel : BaseViewModel
     private int _defaultValidityDays = 7;
     private decimal _defaultLaborValue = 150;
     private string _successMessage = string.Empty;
+    private string _userName = "Usuário";
+    private string _userEmail = string.Empty;
+    private string _userInitials = "?";
 
-    public SettingsViewModel(IOrcaDataStore store)
+    public SettingsViewModel(IOrcaDataStore store, IAuthService authService)
     {
         _store = store;
-        SaveCommand = new AsyncRelayCommand(SaveAsync);
+        _authService = authService;
+        SaveCommand = new AsyncRelayCommand(SaveAsync, () => !IsBusy);
+        LogoutCommand = new AsyncRelayCommand(LogoutAsync, () => !IsBusy);
     }
 
     public string BusinessName { get => _businessName; set => SetProperty(ref _businessName, value); }
@@ -32,6 +38,10 @@ public sealed class SettingsViewModel : BaseViewModel
     public string City { get => _city; set => SetProperty(ref _city, value); }
     public int DefaultValidityDays { get => _defaultValidityDays; set => SetProperty(ref _defaultValidityDays, Math.Clamp(value, 1, 365)); }
     public decimal DefaultLaborValue { get => _defaultLaborValue; set => SetProperty(ref _defaultLaborValue, Math.Max(0, value)); }
+    public string UserName { get => _userName; private set => SetProperty(ref _userName, value); }
+    public string UserEmail { get => _userEmail; private set => SetProperty(ref _userEmail, value); }
+    public string UserInitials { get => _userInitials; private set => SetProperty(ref _userInitials, value); }
+
     public string SuccessMessage
     {
         get => _successMessage;
@@ -41,20 +51,47 @@ public sealed class SettingsViewModel : BaseViewModel
                 OnPropertyChanged(nameof(HasSuccess));
         }
     }
+
     public bool HasSuccess => !string.IsNullOrWhiteSpace(SuccessMessage);
     public ICommand SaveCommand { get; }
+    public ICommand LogoutCommand { get; }
 
     public async Task LoadAsync()
     {
-        var profile = await _store.GetBusinessProfileAsync();
-        BusinessName = profile.BusinessName;
-        OwnerName = profile.OwnerName;
-        Document = profile.Document;
-        Phone = profile.Phone;
-        Email = profile.Email;
-        City = profile.City;
-        DefaultValidityDays = profile.DefaultValidityDays;
-        DefaultLaborValue = profile.DefaultLaborValue;
+        if (IsBusy)
+            return;
+
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+        try
+        {
+            var profile = await _store.GetBusinessProfileAsync();
+            BusinessName = profile.BusinessName;
+            OwnerName = profile.OwnerName;
+            Document = profile.Document;
+            Phone = profile.Phone;
+            Email = profile.Email;
+            City = profile.City;
+            DefaultValidityDays = profile.DefaultValidityDays;
+            DefaultLaborValue = profile.DefaultLaborValue;
+
+            var session = await _authService.GetSessionAsync();
+            if (session is not null)
+            {
+                UserName = session.Name;
+                UserEmail = session.Email;
+                UserInitials = session.Initials;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Não foi possível carregar seus dados. " + ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+            RaiseCommandStates();
+        }
     }
 
     private async Task SaveAsync()
@@ -67,17 +104,53 @@ public sealed class SettingsViewModel : BaseViewModel
             return;
         }
 
-        await _store.SaveBusinessProfileAsync(new BusinessProfile
+        IsBusy = true;
+        RaiseCommandStates();
+        try
         {
-            BusinessName = BusinessName.Trim(),
-            OwnerName = OwnerName.Trim(),
-            Document = Document.Trim(),
-            Phone = Phone.Trim(),
-            Email = Email.Trim(),
-            City = City.Trim(),
-            DefaultValidityDays = DefaultValidityDays,
-            DefaultLaborValue = DefaultLaborValue
-        });
-        SuccessMessage = "Dados salvos.";
+            await _store.SaveBusinessProfileAsync(new BusinessProfile
+            {
+                BusinessName = BusinessName.Trim(),
+                OwnerName = OwnerName.Trim(),
+                Document = Document.Trim(),
+                Phone = Phone.Trim(),
+                Email = Email.Trim(),
+                City = City.Trim(),
+                DefaultValidityDays = DefaultValidityDays,
+                DefaultLaborValue = DefaultLaborValue
+            });
+            SuccessMessage = "Dados salvos.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Não foi possível salvar seus dados. " + ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+            RaiseCommandStates();
+        }
+    }
+
+    private async Task LogoutAsync()
+    {
+        IsBusy = true;
+        RaiseCommandStates();
+        try
+        {
+            await _authService.LogoutAsync();
+            await Shell.Current.GoToAsync("//login");
+        }
+        finally
+        {
+            IsBusy = false;
+            RaiseCommandStates();
+        }
+    }
+
+    private void RaiseCommandStates()
+    {
+        (SaveCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (LogoutCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
     }
 }

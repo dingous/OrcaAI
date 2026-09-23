@@ -68,7 +68,7 @@ public sealed partial class LocalAiQuoteDraftService : IAiQuoteDraftService
 
     private static IEnumerable<QuoteItem> ExtractItems(string description)
     {
-        var segments = Regex.Split(description, @"\s*(?:,|;|\be\b|\bmais\b)\s*", RegexOptions.IgnoreCase)
+        var segments = Regex.Split(description, @"\s*(?:;|(?<!\d),(?!\d)|\be\b|\bmais\b)\s*", RegexOptions.IgnoreCase)
             .Select(x => x.Trim(' ', '.', ':', '-'))
             .Where(x => x.Length >= 3)
             .Take(8);
@@ -91,7 +91,7 @@ public sealed partial class LocalAiQuoteDraftService : IAiQuoteDraftService
             yield return new QuoteItem
             {
                 Description = Capitalize(text),
-                Quantity = Math.Max(1, quantity),
+                Quantity = Math.Max(0.01m, quantity),
                 UnitPrice = 0
             };
         }

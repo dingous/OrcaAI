@@ -48,18 +48,21 @@
                         <Label Text="3. Itens e valores" Style="{StaticResource SectionTitle}" />
                         <Button Grid.Column="1" Text="+ Item" Command="{Binding AddItemCommand}" Style="{StaticResource SecondaryButton}" />
                     </Grid>
-                    <CollectionView ItemsSource="{Binding Items}" SelectionMode="None" HeightRequest="260">
-                        <CollectionView.ItemTemplate>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Items}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:QuoteItem">
-                                <Grid ColumnDefinitions="*,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="4" Margin="0,4">
-                                    <Entry Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Description}" Placeholder="Descrição" Style="{StaticResource Input}" />
-                                    <Entry Grid.Row="1" Grid.Column="0" Text="{Binding Quantity}" Keyboard="Numeric" Placeholder="Qtd" Style="{StaticResource Input}" />
-                                    <Entry Grid.Row="1" Grid.Column="1" Text="{Binding UnitPrice}" Keyboard="Numeric" Placeholder="Valor unitário" Style="{StaticResource Input}" />
-                                    <Button Grid.Row="1" Grid.Column="2" Text="×" CommandParameter="{Binding .}" Clicked="OnRemoveItemClicked" BackgroundColor="#FFF0F0" TextColor="{StaticResource Danger}" CornerRadius="12" WidthRequest="44" HeightRequest="44" VerticalOptions="Center" />
-                                </Grid>
+                                <Border BackgroundColor="{StaticResource SurfaceMuted}" Stroke="{StaticResource Border}" Padding="10">
+                                    <Border.StrokeShape><RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                                    <Grid ColumnDefinitions="*,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                                        <Entry Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Description}" Placeholder="Descrição" Style="{StaticResource Input}" />
+                                        <Entry Grid.Row="1" Grid.Column="0" Text="{Binding Quantity}" Keyboard="Numeric" Placeholder="Qtd" Style="{StaticResource Input}" />
+                                        <Entry Grid.Row="1" Grid.Column="1" Text="{Binding UnitPrice}" Keyboard="Numeric" Placeholder="Valor unitário" Style="{StaticResource Input}" />
+                                        <Button Grid.Row="1" Grid.Column="2" Text="×" CommandParameter="{Binding .}" Clicked="OnRemoveItemClicked" Style="{StaticResource DangerButton}" WidthRequest="46" HeightRequest="46" Padding="0" VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                     <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12">
                         <Label Text="Subtotal" Grid.Row="0" Grid.Column="0" Style="{StaticResource Muted}" />
                         <Label Text="{Binding SubtotalText}" Grid.Row="0" Grid.Column="1" FontAttributes="Bold" />
@@ -81,8 +84,8 @@
 
             <Label IsVisible="{Binding HasError}" Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Button Text="Salvar" Command="{Binding SaveCommand}" Style="{StaticResource SecondaryButton}" />
-                <Button Grid.Column="1" Text="Gerar PDF e compartilhar" Command="{Binding ShareCommand}" Style="{StaticResource PrimaryButton}" />
+                <Button Text="Salvar" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SecondaryButton}" />
+                <Button Grid.Column="1" Text="Gerar PDF e compartilhar" Command="{Binding ShareCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButton}" />
             </Grid>
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
         </VerticalStackLayout>

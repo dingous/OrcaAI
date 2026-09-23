@@ -14,7 +14,12 @@
     Shell.TabBarTitleColor="{StaticResource Primary}"
     Shell.TabBarUnselectedColor="{StaticResource TextSecondary}">
 
-    <TabBar>
+    <ShellContent Route="login"
+                  ContentTemplate="{DataTemplate pages:LoginPage}"
+                  Shell.NavBarIsVisible="False"
+                  FlyoutItemIsVisible="False" />
+
+    <TabBar Route="app">
         <ShellContent Route="dashboard" Title="Início" Icon="home.svg" ContentTemplate="{DataTemplate pages:DashboardPage}" />
         <ShellContent Route="clients" Title="Clientes" Icon="users.svg" ContentTemplate="{DataTemplate pages:ClientsPage}" />
         <ShellContent Route="quotes" Title="Orçamentos" Icon="filetext.svg" ContentTemplate="{DataTemplate pages:QuotesPage}" />

@@ -179,7 +179,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         {
             var quote = _loaded ?? new Quote { Number = Number };
             quote.ClientId = SelectedClient?.Id;
-            quote.ClientName = SelectedClient?.Name ?? string.Empty;
+            quote.ClientName = SelectedClient?.Name ?? _loaded?.ClientName ?? string.Empty;
             quote.Title = Title.Trim();
             quote.Description = Description.Trim();
             quote.Items = Items.ToList();

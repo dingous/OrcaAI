@@ -19,7 +19,7 @@ public sealed class DashboardViewModel : BaseViewModel
         _store = store;
         NewQuoteCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync(nameof(QuoteEditorPage)));
         AddClientCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync(nameof(ClientFormPage)));
-        ViewQuotesCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync("//quotes"));
+        ViewQuotesCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync("//app/quotes"));
     }
 
     public string Clients { get => _clients; private set => SetProperty(ref _clients, value); }

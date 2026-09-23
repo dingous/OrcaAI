@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="OrcaAI.Pages.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:OrcaAI.ViewModels"
+    x:DataType="vm:LoginViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource Background}">
+
+    <ScrollView>
+        <Grid Padding="24" MinimumHeightRequest="620">
+            <VerticalStackLayout MaximumWidthRequest="480" HorizontalOptions="Center" VerticalOptions="Center" Spacing="22">
+                <Border WidthRequest="82" HeightRequest="82" BackgroundColor="{StaticResource Primary}" StrokeThickness="0" HorizontalOptions="Center">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="24" /></Border.StrokeShape>
+                    <Image Source="logo.svg" Margin="14" />
+                </Border>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="OrçaAI" HorizontalTextAlignment="Center" FontSize="34" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" />
+                    <Label Text="Orçamentos profissionais, simples e rápidos." HorizontalTextAlignment="Center" FontSize="17" TextColor="{StaticResource TextSecondary}" />
+                </VerticalStackLayout>
+
+                <Border Style="{StaticResource Card}" Padding="24">
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="Entre para continuar" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                        <Label Text="Sua conta é autenticada pelo Dingous ChatTrade. O OrçaAI não armazena sua senha do Google." Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+
+                        <Button Text="Continuar com Google"
+                                ImageSource="google.svg"
+                                ContentLayout="Left,12"
+                                Command="{Binding LoginCommand}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Style="{StaticResource GoogleButton}" />
+
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
+                        <Border IsVisible="{Binding HasError}" BackgroundColor="{StaticResource DangerSoft}" StrokeThickness="0" Padding="12">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+                            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}" FontSize="13" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Ao continuar, o navegador seguro do sistema será usado para autenticação." HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

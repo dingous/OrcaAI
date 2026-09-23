@@ -17,9 +17,11 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddSingleton<IOrcaDataStore, JsonOrcaDataStore>();
+        builder.Services.AddSingleton<IAuthService, DingousAuthService>();
         builder.Services.AddSingleton<IAiQuoteDraftService, LocalAiQuoteDraftService>();
         builder.Services.AddSingleton<IPdfService, SimplePdfService>();
 
+        builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<DashboardViewModel>();
         builder.Services.AddTransient<ClientsViewModel>();
         builder.Services.AddTransient<ClientFormViewModel>();
