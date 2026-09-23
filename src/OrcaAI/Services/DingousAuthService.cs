@@ -72,15 +72,7 @@ public sealed class DingousAuthService : IAuthService
 
     public Task LogoutAsync()
     {
-        try
-        {
-            SecureStorage.Default.Remove(SessionKey);
-        }
-        catch
-        {
-            // Logout deve continuar mesmo se o armazenamento seguro estiver indisponível.
-        }
-
+        SecureStorage.Default.Remove(SessionKey);
         return Task.CompletedTask;
     }
 
