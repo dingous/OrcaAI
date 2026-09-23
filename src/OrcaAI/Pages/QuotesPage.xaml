@@ -14,7 +14,7 @@
                 <Label Text="Orçamentos" Style="{StaticResource PageTitle}" />
                 <Label Text="Acompanhe propostas, aprovações e valores." Style="{StaticResource Muted}" />
             </VerticalStackLayout>
-            <Button Grid.Column="1" Text="+ Novo" Command="{Binding NewCommand}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" Padding="16,11" />
+            <Button Grid.Column="1" Text="+ Novo" Command="{Binding NewCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource PrimaryButton}" VerticalOptions="Center" Padding="16,11" />
         </Grid>
 
         <SearchBar Grid.Row="1" Placeholder="Buscar por número, cliente ou serviço" Text="{Binding Search}" />
