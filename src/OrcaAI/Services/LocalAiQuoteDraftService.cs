@@ -75,15 +75,19 @@ public sealed partial class LocalAiQuoteDraftService : IAiQuoteDraftService
 
         foreach (var segment in segments)
         {
+            var quantity = 1m;
+            var text = segment;
+
             var match = QuantityRegex().Match(segment);
-            if (!match.Success)
-                continue;
+            if (match.Success)
+            {
+                var raw = match.Groups["qty"].Value.Replace(',', '.');
+                if (decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var parsed))
+                    quantity = Math.Max(0.01m, parsed);
 
-            var raw = match.Groups["qty"].Value.Replace(',', '.');
-            if (!decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var quantity))
-                quantity = 1;
+                text = segment.Remove(match.Index, match.Length).Trim();
+            }
 
-            var text = segment.Remove(match.Index, match.Length).Trim();
             text = LeadingArticleRegex().Replace(text, string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(text))
                 continue;
@@ -91,7 +95,7 @@ public sealed partial class LocalAiQuoteDraftService : IAiQuoteDraftService
             yield return new QuoteItem
             {
                 Description = Capitalize(text),
-                Quantity = Math.Max(0.01m, quantity),
+                Quantity = quantity,
                 UnitPrice = 0
             };
         }
