@@ -184,7 +184,7 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
     {
         var session = await _authService.GetSessionAsync(cancellationToken);
         if (session is null || string.IsNullOrWhiteSpace(session.Email))
-            return _legacyFilePath;
+            throw new InvalidOperationException("É necessário entrar novamente para acessar os dados locais.");
 
         var normalizedEmail = session.Email.Trim().ToLowerInvariant();
         var digest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalizedEmail))).ToLowerInvariant();
