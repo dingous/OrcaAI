@@ -50,7 +50,23 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
     }
 
     public Task DeleteClientAsync(Guid id, CancellationToken cancellationToken = default) =>
-        MutateAsync(data => data.Clients.RemoveAll(x => x.Id == id), cancellationToken);
+        MutateAsync(data =>
+        {
+            var client = data.Clients.FirstOrDefault(x => x.Id == id);
+            if (client is null)
+                return;
+
+            data.Clients.RemoveAll(x => x.Id == id);
+
+            foreach (var quote in data.Quotes.Where(x => x.ClientId == id))
+            {
+                if (string.IsNullOrWhiteSpace(quote.ClientName))
+                    quote.ClientName = client.Name;
+
+                quote.ClientId = null;
+                quote.UpdatedAtUtc = DateTime.UtcNow;
+            }
+        }, cancellationToken);
 
     public async Task<IReadOnlyList<Quote>> GetQuotesAsync(CancellationToken cancellationToken = default)
     {
@@ -211,7 +227,16 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         var scopedPath = Path.Combine(FileSystem.AppDataDirectory, $"orcaai-data-{digest[..24]}.json");
 
         if (!File.Exists(scopedPath) && File.Exists(_legacyFilePath))
-            File.Move(_legacyFilePath, scopedPath);
+        {
+            try
+            {
+                File.Move(_legacyFilePath, scopedPath);
+            }
+            catch (IOException) when (File.Exists(scopedPath))
+            {
+                // Outra instância terminou a migração primeiro; o arquivo de destino é a fonte correta.
+            }
+        }
 
         return scopedPath;
     }
