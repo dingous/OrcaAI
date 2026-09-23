@@ -181,7 +181,12 @@ public sealed class SettingsViewModel : BaseViewModel
 
     private async Task OpenExternalAsync(Uri uri)
     {
+        if (IsBusy)
+            return;
+
         ClearError();
+        IsBusy = true;
+        RaiseCommandStates();
 
         try
         {
@@ -191,6 +196,11 @@ public sealed class SettingsViewModel : BaseViewModel
         catch (Exception ex)
         {
             SetError("Não foi possível abrir a página no navegador. Tente novamente.", ex);
+        }
+        finally
+        {
+            IsBusy = false;
+            RaiseCommandStates();
         }
     }
 

@@ -239,6 +239,16 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
             changed = true;
         }
 
+        var clientCount = data.Clients.Count;
+        data.Clients.RemoveAll(static client => client is null);
+        if (data.Clients.Count != clientCount)
+            changed = true;
+
+        var quoteCount = data.Quotes.Count;
+        data.Quotes.RemoveAll(static quote => quote is null);
+        if (data.Quotes.Count != quoteCount)
+            changed = true;
+
         foreach (var client in data.Clients)
         {
             if (client.Id == Guid.Empty)
@@ -274,6 +284,13 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
             }
 
             quote.Number = NormalizeString(quote.Number, ref changed);
+            if (string.IsNullOrWhiteSpace(quote.Number))
+            {
+                var stamp = quote.CreatedAtUtc == default ? DateTime.UtcNow : quote.CreatedAtUtc;
+                quote.Number = $"ORC-{stamp.ToLocalTime():yyMMdd-HHmmss}-{quote.Id.ToString("N")[..6].ToUpperInvariant()}";
+                changed = true;
+            }
+
             quote.ClientName = NormalizeString(quote.ClientName, ref changed);
             quote.Title = NormalizeString(quote.Title, ref changed);
             quote.Description = NormalizeString(quote.Description, ref changed);
@@ -285,8 +302,25 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
                 changed = true;
             }
 
+            var itemCount = quote.Items.Count;
+            quote.Items.RemoveAll(static item => item is null);
+            if (quote.Items.Count != itemCount)
+                changed = true;
+
             foreach (var item in quote.Items)
                 item.Description = NormalizeString(item.Description, ref changed);
+
+            if (!Enum.IsDefined(typeof(QuoteStatus), quote.Status))
+            {
+                quote.Status = QuoteStatus.Draft;
+                changed = true;
+            }
+
+            if (quote.Discount < 0)
+            {
+                quote.Discount = 0;
+                changed = true;
+            }
 
             if (quote.CreatedAtUtc == default)
             {
@@ -318,6 +352,12 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         if (profile.DefaultValidityDays is < 1 or > 365)
         {
             profile.DefaultValidityDays = 7;
+            changed = true;
+        }
+
+        if (profile.DefaultLaborValue < 0)
+        {
+            profile.DefaultLaborValue = 0;
             changed = true;
         }
 

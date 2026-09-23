@@ -46,8 +46,8 @@
                                 <Label Text="{Binding Total, StringFormat='Total: R$ {0:N2}'}" TextColor="{StaticResource AccentDark}" FontAttributes="Bold" />
                             </VerticalStackLayout>
                             <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="6">
-                                <Button Text="Abrir" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="40" />
-                                <Button Grid.Column="1" Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" Style="{StaticResource DangerButton}" Padding="12,8" MinimumHeightRequest="40" />
+                                <Button Text="Abrir" SemanticProperties.Description="Abrir orçamento" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="48" />
+                                <Button Grid.Column="1" Text="Excluir" SemanticProperties.Description="Excluir orçamento" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" Style="{StaticResource DangerButton}" Padding="12,8" MinimumHeightRequest="48" />
                             </Grid>
                         </Grid>
                     </Border>

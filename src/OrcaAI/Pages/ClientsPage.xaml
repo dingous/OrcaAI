@@ -43,8 +43,8 @@
                                 <Label Text="{Binding Email}" IsVisible="{Binding HasEmail}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
                             </VerticalStackLayout>
                             <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,*" ColumnSpacing="6">
-                                <Button Text="Editar" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="40" />
-                                <Button Grid.Column="1" Text="Excluir" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" Style="{StaticResource DangerButton}" Padding="12,8" MinimumHeightRequest="40" />
+                                <Button Text="Editar" SemanticProperties.Description="Editar cliente" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="48" />
+                                <Button Grid.Column="1" Text="Excluir" SemanticProperties.Description="Excluir cliente" CommandParameter="{Binding .}" Clicked="OnDeleteClicked" Style="{StaticResource DangerButton}" Padding="12,8" MinimumHeightRequest="48" />
                             </Grid>
                         </Grid>
                     </Border>

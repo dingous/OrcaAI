@@ -211,9 +211,15 @@ public sealed class QuoteEditorViewModel : BaseViewModel
             return null;
         }
 
-        if (ValidUntil.Date < DateTime.Today)
+        var isNewPastValidity = _loaded is null && ValidUntil.Date < DateTime.Today;
+        var changedExistingValidityToPast =
+            _loaded is not null
+            && ValidUntil.Date < DateTime.Today
+            && ValidUntil.Date != _loaded.ValidUntil.Date;
+
+        if (isNewPastValidity || changedExistingValidityToPast)
         {
-            SetError("A validade do orçamento não pode estar no passado.");
+            SetError("A validade do orçamento não pode ser alterada para uma data no passado.");
             return null;
         }
 
@@ -263,6 +269,16 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
     private async Task ShareAsync()
     {
+        try
+        {
+            _profile = await _store.GetBusinessProfileAsync();
+        }
+        catch (Exception ex)
+        {
+            SetError("Não foi possível carregar os dados da empresa para gerar o PDF.", ex);
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(_profile.BusinessName)
             || string.Equals(_profile.BusinessName.Trim(), "Minha empresa", StringComparison.OrdinalIgnoreCase))
         {
