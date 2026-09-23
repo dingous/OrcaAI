@@ -16,13 +16,13 @@
             <Border Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Nome *" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding Name}" Placeholder="Ex.: João da Silva" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding Name}" MaxLength="160" Placeholder="Ex.: João da Silva" Style="{StaticResource Input}" />
                     <Label Text="Telefone" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding Phone}" Placeholder="(34) 99999-9999" Keyboard="Telephone" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding Phone}" MaxLength="30" Placeholder="(34) 99999-9999" Keyboard="Telephone" Style="{StaticResource Input}" />
                     <Label Text="E-mail" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding Email}" Placeholder="cliente@email.com" Keyboard="Email" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding Email}" MaxLength="254" Placeholder="cliente@email.com" Keyboard="Email" Style="{StaticResource Input}" />
                     <Label Text="Observações" Style="{StaticResource FieldLabel}" />
-                    <Editor Text="{Binding Notes}" Placeholder="Preferências, endereço ou detalhes importantes" Style="{StaticResource EditorInput}" />
+                    <Editor Text="{Binding Notes}" MaxLength="1200" Placeholder="Preferências, endereço ou detalhes importantes" Style="{StaticResource EditorInput}" />
                 </VerticalStackLayout>
             </Border>
 

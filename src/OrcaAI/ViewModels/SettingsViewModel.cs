@@ -21,7 +21,7 @@ public sealed class SettingsViewModel : BaseViewModel
     private string _email = string.Empty;
     private string _city = string.Empty;
     private int _defaultValidityDays = 7;
-    private decimal _defaultLaborValue = 150;
+    private decimal _defaultLaborValue;
     private string _successMessage = string.Empty;
     private string _userName = "Usuário";
     private string _userEmail = string.Empty;

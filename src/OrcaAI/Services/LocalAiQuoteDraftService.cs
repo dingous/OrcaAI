@@ -71,7 +71,7 @@ public sealed partial class LocalAiQuoteDraftService : IAiQuoteDraftService
         var segments = Regex.Split(description, @"\s*(?:;|(?<!\d),(?!\d)|\be\b|\bmais\b)\s*", RegexOptions.IgnoreCase)
             .Select(x => x.Trim(' ', '.', ':', '-'))
             .Where(x => x.Length >= 3)
-            .Take(8);
+            .Take(50);
 
         foreach (var segment in segments)
         {

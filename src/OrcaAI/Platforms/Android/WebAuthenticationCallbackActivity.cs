@@ -8,7 +8,7 @@ namespace OrcaAI;
 [IntentFilter(
     new[] { Intent.ActionView },
     Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
-    DataScheme = "orcaai",
+    DataScheme = "br.com.dingous.orcaai",
     DataHost = "auth")]
 public sealed class WebAuthenticationCallbackActivity : Microsoft.Maui.Authentication.WebAuthenticatorCallbackActivity
 {

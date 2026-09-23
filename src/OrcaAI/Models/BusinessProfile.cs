@@ -9,5 +9,5 @@ public sealed class BusinessProfile
     public string Email { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
     public int DefaultValidityDays { get; set; } = 7;
-    public decimal DefaultLaborValue { get; set; } = 150m;
+    public decimal DefaultLaborValue { get; set; }
 }

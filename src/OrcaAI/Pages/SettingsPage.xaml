@@ -28,17 +28,17 @@
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Dados do orçamento" Style="{StaticResource SectionTitle}" />
                     <Label Text="Nome da empresa/profissional *" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding BusinessName}" Placeholder="Ex.: Diego Serviços Elétricos" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding BusinessName}" MaxLength="180" Placeholder="Ex.: Diego Serviços Elétricos" Style="{StaticResource Input}" />
                     <Label Text="Responsável" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding OwnerName}" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding OwnerName}" MaxLength="160" Style="{StaticResource Input}" />
                     <Label Text="CPF/CNPJ" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding Document}" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding Document}" MaxLength="32" Style="{StaticResource Input}" />
                     <Label Text="Telefone" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding Phone}" Keyboard="Telephone" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding Phone}" MaxLength="30" Keyboard="Telephone" Style="{StaticResource Input}" />
                     <Label Text="E-mail" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding Email}" Keyboard="Email" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding Email}" MaxLength="254" Keyboard="Email" Style="{StaticResource Input}" />
                     <Label Text="Cidade" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding City}" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding City}" MaxLength="120" Style="{StaticResource Input}" />
                     <Label Text="Validade padrão (dias)" Style="{StaticResource FieldLabel}" />
                     <Entry Text="{Binding DefaultValidityDays}" Keyboard="Numeric" Style="{StaticResource Input}" />
                     <Label Text="Mão de obra padrão (R$)" Style="{StaticResource FieldLabel}" />

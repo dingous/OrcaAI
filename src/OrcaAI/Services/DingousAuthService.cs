@@ -14,7 +14,7 @@ public sealed class DingousAuthService : IAuthService
 {
     private const string SessionKey = "orcaai.auth.session.v1";
     private const string GoogleLoginUrl = "https://www.dingous.com.br/auth/orcaai/google";
-    private static readonly Uri MobileCallback = new("orcaai://auth");
+    private static readonly Uri MobileCallback = new("br.com.dingous.orcaai://auth");
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     public async Task<AuthSession?> GetSessionAsync(CancellationToken cancellationToken = default)

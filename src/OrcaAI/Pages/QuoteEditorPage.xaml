@@ -20,7 +20,7 @@
             <Border Style="{StaticResource Card}" Padding="20">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="1. Descreva o serviço" Style="{StaticResource SectionTitle}" />
-                    <Editor Text="{Binding Description}" Placeholder="Ex.: Trocar 3 tomadas, instalar 2 luminárias e revisar o disjuntor do quarto." Style="{StaticResource EditorInput}" />
+                    <Editor Text="{Binding Description}" MaxLength="4000" Placeholder="Ex.: Trocar 3 tomadas, instalar 2 luminárias e revisar o disjuntor do quarto." Style="{StaticResource EditorInput}" />
                     <Button Text="✨ Gerar rascunho inteligente" Command="{Binding GenerateDraftCommand}" IsEnabled="{Binding IsNotBusy}" Style="{StaticResource SecondaryButton}" />
                     <Label Text="O modo local organiza a descrição sem enviar seus dados para serviços externos." Style="{StaticResource Muted}" />
                 </VerticalStackLayout>
@@ -32,7 +32,7 @@
                     <Label Text="Cliente" Style="{StaticResource FieldLabel}" />
                     <Picker Title="Selecione um cliente (opcional)" ItemsSource="{Binding Clients}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding SelectedClient}" />
                     <Label Text="Título" Style="{StaticResource FieldLabel}" />
-                    <Entry Text="{Binding Title}" Placeholder="Ex.: Serviço elétrico" Style="{StaticResource Input}" />
+                    <Entry Text="{Binding Title}" MaxLength="180" Placeholder="Ex.: Serviço elétrico" Style="{StaticResource Input}" />
                     <Label Text="Validade" Style="{StaticResource FieldLabel}" />
                     <DatePicker Date="{Binding ValidUntil}" />
                 </VerticalStackLayout>
@@ -50,7 +50,7 @@
                                 <Border BackgroundColor="{StaticResource SurfaceMuted}" Stroke="{StaticResource Border}" Padding="10">
                                     <Border.StrokeShape><RoundRectangle CornerRadius="14" /></Border.StrokeShape>
                                     <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
-                                        <Entry Grid.Row="0" Grid.Column="0" Text="{Binding Description}" Placeholder="Descrição" Style="{StaticResource Input}" />
+                                        <Entry Grid.Row="0" Grid.Column="0" Text="{Binding Description}" MaxLength="300" Placeholder="Descrição" Style="{StaticResource Input}" />
                                         <Button Grid.Row="0" Grid.Column="1"
                                                 Text="×"
                                                 CommandParameter="{Binding .}"
@@ -59,7 +59,7 @@
                                                 WidthRequest="46"
                                                 HeightRequest="46"
                                                 Padding="0"
-                                                VerticalOptions="Center" />
+                                                VerticalOptions="Center" SemanticProperties.Description="Remover item do orçamento" />
                                         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="8">
                                             <VerticalStackLayout Spacing="4">
                                                 <Label Text="Quantidade" Style="{StaticResource FieldLabel}" />
@@ -92,7 +92,7 @@
             <Border Style="{StaticResource Card}" Padding="20">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Observações" Style="{StaticResource SectionTitle}" />
-                    <Editor Text="{Binding Notes}" Placeholder="Condições de pagamento, prazo de execução, garantia..." Style="{StaticResource EditorInput}" />
+                    <Editor Text="{Binding Notes}" MaxLength="2000" Placeholder="Condições de pagamento, prazo de execução, garantia..." Style="{StaticResource EditorInput}" />
                 </VerticalStackLayout>
             </Border>
 
