@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Maui.Storage;
 using OrcaAI.Models;
@@ -7,16 +9,19 @@ namespace OrcaAI.Services;
 public sealed class JsonOrcaDataStore : IOrcaDataStore
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly IAuthService _authService;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
-    private readonly string _filePath;
+    private readonly string _legacyFilePath;
     private DataEnvelope? _cache;
+    private string? _cachePath;
 
-    public JsonOrcaDataStore()
+    public JsonOrcaDataStore(IAuthService authService)
     {
-        _filePath = Path.Combine(FileSystem.AppDataDirectory, "orcaai-data.json");
+        _authService = authService;
+        _legacyFilePath = Path.Combine(FileSystem.AppDataDirectory, "orcaai-data.json");
     }
 
     public async Task<IReadOnlyList<Client>> GetClientsAsync(CancellationToken cancellationToken = default)
@@ -99,25 +104,32 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         await _gate.WaitAsync(cancellationToken);
         try
         {
-            if (_cache is not null)
+            var filePath = await ResolveFilePathUnsafeAsync(cancellationToken);
+            if (_cache is not null && string.Equals(_cachePath, filePath, StringComparison.OrdinalIgnoreCase))
                 return _cache;
 
-            if (!File.Exists(_filePath))
+            _cache = null;
+            _cachePath = filePath;
+
+            if (!File.Exists(filePath))
             {
                 _cache = new DataEnvelope();
-                await PersistUnsafeAsync(_cache, cancellationToken);
+                await PersistUnsafeAsync(_cache, filePath, cancellationToken);
                 return _cache;
             }
 
-            await using var stream = File.OpenRead(_filePath);
-            _cache = await JsonSerializer.DeserializeAsync<DataEnvelope>(stream, _jsonOptions, cancellationToken)
-                     ?? new DataEnvelope();
-            return _cache;
-        }
-        catch (JsonException)
-        {
-            _cache = new DataEnvelope();
-            await PersistUnsafeAsync(_cache, cancellationToken);
+            try
+            {
+                await using var stream = File.OpenRead(filePath);
+                _cache = await JsonSerializer.DeserializeAsync<DataEnvelope>(stream, _jsonOptions, cancellationToken)
+                         ?? new DataEnvelope();
+            }
+            catch (JsonException)
+            {
+                _cache = new DataEnvelope();
+                await PersistUnsafeAsync(_cache, filePath, cancellationToken);
+            }
+
             return _cache;
         }
         finally
@@ -131,13 +143,17 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         await _gate.WaitAsync(cancellationToken);
         try
         {
-            if (_cache is null)
+            var filePath = await ResolveFilePathUnsafeAsync(cancellationToken);
+            if (_cache is null || !string.Equals(_cachePath, filePath, StringComparison.OrdinalIgnoreCase))
             {
-                if (File.Exists(_filePath))
+                _cache = null;
+                _cachePath = filePath;
+
+                if (File.Exists(filePath))
                 {
                     try
                     {
-                        await using var stream = File.OpenRead(_filePath);
+                        await using var stream = File.OpenRead(filePath);
                         _cache = await JsonSerializer.DeserializeAsync<DataEnvelope>(stream, _jsonOptions, cancellationToken);
                     }
                     catch (JsonException)
@@ -150,12 +166,28 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
             }
 
             mutation(_cache);
-            await PersistUnsafeAsync(_cache, cancellationToken);
+            await PersistUnsafeAsync(_cache, filePath, cancellationToken);
         }
         finally
         {
             _gate.Release();
         }
+    }
+
+    private async Task<string> ResolveFilePathUnsafeAsync(CancellationToken cancellationToken)
+    {
+        var session = await _authService.GetSessionAsync(cancellationToken);
+        if (session?.IsValid != true || string.IsNullOrWhiteSpace(session.Email))
+            return _legacyFilePath;
+
+        var normalizedEmail = session.Email.Trim().ToLowerInvariant();
+        var digest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalizedEmail))).ToLowerInvariant();
+        var scopedPath = Path.Combine(FileSystem.AppDataDirectory, $"orcaai-data-{digest[..24]}.json");
+
+        if (!File.Exists(scopedPath) && File.Exists(_legacyFilePath))
+            File.Move(_legacyFilePath, scopedPath);
+
+        return scopedPath;
     }
 
     private static Client CloneClient(Client source) => new()
@@ -203,14 +235,14 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         DefaultLaborValue = source.DefaultLaborValue
     };
 
-    private async Task PersistUnsafeAsync(DataEnvelope data, CancellationToken cancellationToken)
+    private async Task PersistUnsafeAsync(DataEnvelope data, string filePath, CancellationToken cancellationToken)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
-        var temp = _filePath + ".tmp";
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+        var temp = filePath + ".tmp";
         await using (var stream = File.Create(temp))
             await JsonSerializer.SerializeAsync(stream, data, _jsonOptions, cancellationToken);
 
-        File.Move(temp, _filePath, true);
+        File.Move(temp, filePath, true);
     }
 
     private sealed class DataEnvelope
