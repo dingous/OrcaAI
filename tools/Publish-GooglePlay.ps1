@@ -20,7 +20,7 @@ $password = [Net.NetworkCredential]::new('', $securePassword).Password
 $tempPasswordFile = Join-Path $SigningDirectory ('publish-password-' + [Guid]::NewGuid().ToString('N') + '.txt')
 
 try {
-    Set-Content -LiteralPath $tempPasswordFile -Value $password -NoNewline -Encoding UTF8
+    Set-Content -LiteralPath $tempPasswordFile -Value $password -NoNewline -Encoding ASCII
 
     $publishArgs = @(
         'publish', $Project,
@@ -39,9 +39,15 @@ try {
 
     $projectDirectory = Split-Path -Parent (Resolve-Path $Project)
     $publishDirectory = Join-Path $projectDirectory 'bin\Release\net10.0-android36.0\publish'
-    $bundle = Get-ChildItem -LiteralPath $publishDirectory -Filter '*.aab' -File -ErrorAction Stop |
+    $bundle = Get-ChildItem -LiteralPath $publishDirectory -Filter '*-Signed.aab' -File -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTimeUtc -Descending |
         Select-Object -First 1
+
+    if (-not $bundle) {
+        $bundle = Get-ChildItem -LiteralPath $publishDirectory -Filter '*.aab' -File -ErrorAction Stop |
+            Sort-Object LastWriteTimeUtc -Descending |
+            Select-Object -First 1
+    }
 
     if (-not $bundle) { throw "Nenhum AAB foi encontrado em $publishDirectory." }
 
