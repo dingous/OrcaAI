@@ -6,7 +6,8 @@
     xmlns:models="clr-namespace:OrcaAI.Models"
     xmlns:vm="clr-namespace:OrcaAI.ViewModels"
     x:DataType="vm:ClientsViewModel"
-    Title="Clientes">
+    Title="Clientes"
+    SafeAreaEdges="All">
 
     <Grid Padding="24" RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="16" MaximumWidthRequest="1000" HorizontalOptions="Fill">
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">

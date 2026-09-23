@@ -127,6 +127,9 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
                 await using var stream = File.OpenRead(filePath);
                 _cache = await JsonSerializer.DeserializeAsync<DataEnvelope>(stream, _jsonOptions, cancellationToken)
                          ?? new DataEnvelope();
+
+                if (NormalizeData(_cache))
+                    await PersistUnsafeAsync(_cache, filePath, cancellationToken);
             }
             catch (JsonException)
             {
@@ -169,9 +172,11 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
                 }
 
                 _cache ??= new DataEnvelope();
+                NormalizeData(_cache);
             }
 
             mutation(_cache);
+            NormalizeData(_cache);
             await PersistUnsafeAsync(_cache, filePath, cancellationToken);
         }
         finally
@@ -210,6 +215,138 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         {
             // A recuperação continua mesmo se o backup não puder ser criado.
         }
+    }
+
+    private static bool NormalizeData(DataEnvelope data)
+    {
+        var changed = false;
+
+        if (data.Clients is null)
+        {
+            data.Clients = [];
+            changed = true;
+        }
+
+        if (data.Quotes is null)
+        {
+            data.Quotes = [];
+            changed = true;
+        }
+
+        if (data.BusinessProfile is null)
+        {
+            data.BusinessProfile = new BusinessProfile();
+            changed = true;
+        }
+
+        foreach (var client in data.Clients)
+        {
+            if (client.Id == Guid.Empty)
+            {
+                client.Id = Guid.NewGuid();
+                changed = true;
+            }
+
+            client.Name = NormalizeString(client.Name, ref changed);
+            client.Phone = NormalizeString(client.Phone, ref changed);
+            client.Email = NormalizeString(client.Email, ref changed);
+            client.Notes = NormalizeString(client.Notes, ref changed);
+
+            if (client.CreatedAtUtc == default)
+            {
+                client.CreatedAtUtc = DateTime.UtcNow;
+                changed = true;
+            }
+
+            if (client.UpdatedAtUtc == default)
+            {
+                client.UpdatedAtUtc = client.CreatedAtUtc;
+                changed = true;
+            }
+        }
+
+        foreach (var quote in data.Quotes)
+        {
+            if (quote.Id == Guid.Empty)
+            {
+                quote.Id = Guid.NewGuid();
+                changed = true;
+            }
+
+            quote.Number = NormalizeString(quote.Number, ref changed);
+            quote.ClientName = NormalizeString(quote.ClientName, ref changed);
+            quote.Title = NormalizeString(quote.Title, ref changed);
+            quote.Description = NormalizeString(quote.Description, ref changed);
+            quote.Notes = NormalizeString(quote.Notes, ref changed);
+
+            if (quote.Items is null)
+            {
+                quote.Items = [];
+                changed = true;
+            }
+
+            foreach (var item in quote.Items)
+                item.Description = NormalizeString(item.Description, ref changed);
+
+            if (quote.CreatedAtUtc == default)
+            {
+                quote.CreatedAtUtc = DateTime.UtcNow;
+                changed = true;
+            }
+
+            if (quote.UpdatedAtUtc == default)
+            {
+                quote.UpdatedAtUtc = quote.CreatedAtUtc;
+                changed = true;
+            }
+
+            if (quote.ValidUntil == default)
+            {
+                quote.ValidUntil = DateTime.Today.AddDays(7);
+                changed = true;
+            }
+        }
+
+        var profile = data.BusinessProfile;
+        profile.BusinessName = NormalizeString(profile.BusinessName, ref changed);
+        profile.OwnerName = NormalizeString(profile.OwnerName, ref changed);
+        profile.Document = NormalizeString(profile.Document, ref changed);
+        profile.Phone = NormalizeString(profile.Phone, ref changed);
+        profile.Email = NormalizeString(profile.Email, ref changed);
+        profile.City = NormalizeString(profile.City, ref changed);
+
+        if (profile.DefaultValidityDays is < 1 or > 365)
+        {
+            profile.DefaultValidityDays = 7;
+            changed = true;
+        }
+
+        var untouchedLegacyDefaults =
+            string.Equals(profile.BusinessName, "Minha empresa", StringComparison.OrdinalIgnoreCase)
+            && string.IsNullOrWhiteSpace(profile.OwnerName)
+            && string.IsNullOrWhiteSpace(profile.Document)
+            && string.IsNullOrWhiteSpace(profile.Phone)
+            && string.IsNullOrWhiteSpace(profile.Email)
+            && string.IsNullOrWhiteSpace(profile.City)
+            && profile.DefaultLaborValue == 150m;
+
+        if (untouchedLegacyDefaults)
+        {
+            profile.BusinessName = string.Empty;
+            profile.DefaultLaborValue = 0m;
+            changed = true;
+        }
+
+        return changed;
+    }
+
+    private static string NormalizeString(string? value, ref bool changed)
+    {
+        if (value is not null)
+            return value;
+
+        changed = true;
+        return string.Empty;
     }
 
     private static Client CloneClient(Client source) => new()

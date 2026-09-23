@@ -6,7 +6,8 @@
     xmlns:models="clr-namespace:OrcaAI.Models"
     xmlns:vm="clr-namespace:OrcaAI.ViewModels"
     x:DataType="vm:QuoteEditorViewModel"
-    Title="Orçamento">
+    Title="Orçamento"
+    SafeAreaEdges="All">
 
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="18" MaximumWidthRequest="900" HorizontalOptions="Fill">

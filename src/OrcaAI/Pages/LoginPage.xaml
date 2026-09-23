@@ -6,12 +6,19 @@
     xmlns:vm="clr-namespace:OrcaAI.ViewModels"
     x:DataType="vm:LoginViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="{StaticResource Background}">
+    BackgroundColor="{StaticResource Background}"
+    SafeAreaEdges="All">
 
     <ScrollView>
         <Grid Padding="24" MinimumHeightRequest="620">
             <VerticalStackLayout MaximumWidthRequest="480" HorizontalOptions="Center" VerticalOptions="Center" Spacing="22">
-                <Border WidthRequest="82" HeightRequest="82" BackgroundColor="{StaticResource Primary}" StrokeThickness="0" HorizontalOptions="Center">
+                <Border WidthRequest="82" HeightRequest="82" StrokeThickness="0" HorizontalOptions="Center">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+                            <GradientStop Color="{StaticResource PrimaryDark}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
                     <Border.StrokeShape><RoundRectangle CornerRadius="24" /></Border.StrokeShape>
                     <Image Source="logo.svg" Margin="14" />
                 </Border>

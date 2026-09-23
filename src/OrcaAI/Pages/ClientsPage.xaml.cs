@@ -22,14 +22,16 @@ public partial class ClientsPage : ContentPage
 
     private async void OnEditClicked(object? sender, EventArgs e)
     {
+        if (_viewModel.IsBusy) return;
         if (sender is Button { CommandParameter: Client client })
             await _viewModel.EditAsync(client);
     }
 
     private async void OnDeleteClicked(object? sender, EventArgs e)
     {
+        if (_viewModel.IsBusy) return;
         if (sender is not Button { CommandParameter: Client client }) return;
-        var confirm = await DisplayAlert("Excluir cliente", $"Excluir {client.Name}?", "Excluir", "Cancelar");
+        var confirm = await DisplayAlertAsync("Excluir cliente", $"Excluir {client.Name}?", "Excluir", "Cancelar");
         if (confirm) await _viewModel.DeleteAsync(client);
     }
 }

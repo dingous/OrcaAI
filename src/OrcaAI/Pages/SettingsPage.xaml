@@ -5,7 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:OrcaAI.ViewModels"
     x:DataType="vm:SettingsViewModel"
-    Title="Empresa">
+    Title="Empresa"
+    SafeAreaEdges="All">
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="18" MaximumWidthRequest="760" HorizontalOptions="Fill">
             <VerticalStackLayout Spacing="4">
