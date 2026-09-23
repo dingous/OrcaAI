@@ -97,6 +97,12 @@ public sealed class QuotesViewModel : BaseViewModel
 
     private async Task NavigateAsync(string route)
     {
+        if (IsBusy)
+            return;
+
+        IsBusy = true;
+        RaiseActionStates();
+
         try
         {
             ClearError();
@@ -105,6 +111,11 @@ public sealed class QuotesViewModel : BaseViewModel
         catch (Exception ex)
         {
             SetError("Não foi possível abrir o orçamento. Tente novamente.", ex);
+        }
+        finally
+        {
+            IsBusy = false;
+            RaiseActionStates();
         }
     }
 

@@ -55,6 +55,11 @@
         <Setter Property="Stroke" Value="{StaticResource Border}" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Padding" Value="18" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#22000000" Offset="0,2" Radius="8" Opacity="0.18" />
+            </Setter.Value>
+        </Setter>
         <Setter Property="StrokeShape">
             <RoundRectangle CornerRadius="20" />
         </Setter>

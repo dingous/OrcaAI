@@ -140,9 +140,6 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         try
         {
             var filePath = await ResolveFilePathUnsafeAsync(cancellationToken);
-            if (_cache is not null && string.Equals(_cachePath, filePath, StringComparison.OrdinalIgnoreCase))
-                return _cache;
-
             _cache = null;
             _cachePath = filePath;
 
@@ -183,28 +180,25 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         try
         {
             var filePath = await ResolveFilePathUnsafeAsync(cancellationToken);
-            if (_cache is null || !string.Equals(_cachePath, filePath, StringComparison.OrdinalIgnoreCase))
+            _cache = null;
+            _cachePath = filePath;
+
+            if (File.Exists(filePath))
             {
-                _cache = null;
-                _cachePath = filePath;
-
-                if (File.Exists(filePath))
+                try
                 {
-                    try
-                    {
-                        await using var stream = File.OpenRead(filePath);
-                        _cache = await JsonSerializer.DeserializeAsync<DataEnvelope>(stream, _jsonOptions, cancellationToken);
-                    }
-                    catch (JsonException)
-                    {
-                        BackupCorruptFile(filePath);
-                        _cache = null;
-                    }
+                    await using var stream = File.OpenRead(filePath);
+                    _cache = await JsonSerializer.DeserializeAsync<DataEnvelope>(stream, _jsonOptions, cancellationToken);
                 }
-
-                _cache ??= new DataEnvelope();
-                NormalizeData(_cache);
+                catch (JsonException)
+                {
+                    BackupCorruptFile(filePath);
+                    _cache = null;
+                }
             }
+
+            _cache ??= new DataEnvelope();
+            NormalizeData(_cache);
 
             mutation(_cache);
             NormalizeData(_cache);
@@ -289,11 +283,17 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         if (data.Quotes.Count != quoteCount)
             changed = true;
 
+        var clientIds = new HashSet<Guid>();
         foreach (var client in data.Clients)
         {
-            if (client.Id == Guid.Empty)
+            if (client.Id == Guid.Empty || !clientIds.Add(client.Id))
             {
-                client.Id = Guid.NewGuid();
+                do
+                {
+                    client.Id = Guid.NewGuid();
+                }
+                while (!clientIds.Add(client.Id));
+
                 changed = true;
             }
 
@@ -315,19 +315,34 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
             }
         }
 
+        var quoteIds = new HashSet<Guid>();
+        var quoteNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var quote in data.Quotes)
         {
-            if (quote.Id == Guid.Empty)
+            if (quote.Id == Guid.Empty || !quoteIds.Add(quote.Id))
             {
-                quote.Id = Guid.NewGuid();
+                do
+                {
+                    quote.Id = Guid.NewGuid();
+                }
+                while (!quoteIds.Add(quote.Id));
+
                 changed = true;
             }
 
-            quote.Number = NormalizeString(quote.Number, ref changed);
-            if (string.IsNullOrWhiteSpace(quote.Number))
+            quote.Number = NormalizeString(quote.Number, ref changed).Trim();
+            if (string.IsNullOrWhiteSpace(quote.Number) || !quoteNumbers.Add(quote.Number))
             {
                 var stamp = quote.CreatedAtUtc == default ? DateTime.UtcNow : quote.CreatedAtUtc;
                 quote.Number = $"ORC-{stamp.ToLocalTime():yyMMdd-HHmmss}-{quote.Id.ToString("N")[..6].ToUpperInvariant()}";
+                quoteNumbers.Add(quote.Number);
+                changed = true;
+            }
+
+            if (quote.ClientId.HasValue && !clientIds.Contains(quote.ClientId.Value))
+            {
+                quote.ClientId = null;
                 changed = true;
             }
 
@@ -477,7 +492,7 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
     private async Task PersistUnsafeAsync(DataEnvelope data, string filePath, CancellationToken cancellationToken)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-        var temp = filePath + ".tmp";
+        var temp = $"{filePath}.{Environment.ProcessId}.{Guid.NewGuid():N}.tmp";
 
         try
         {

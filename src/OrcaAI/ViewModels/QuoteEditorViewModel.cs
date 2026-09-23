@@ -202,7 +202,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         if (IsBusy)
             return;
 
-        var item = new QuoteItem { Description = "Novo item", Quantity = 1 };
+        var item = new QuoteItem { Description = string.Empty, Quantity = 1 };
         item.PropertyChanged += OnItemPropertyChanged;
         Items.Add(item);
         RaiseTotals();
