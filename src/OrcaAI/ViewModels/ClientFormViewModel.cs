@@ -22,10 +22,10 @@ public sealed class ClientFormViewModel : BaseViewModel
     }
 
     public string Title { get => _title; private set => SetProperty(ref _title, value); }
-    public string Name { get => _name; set => SetProperty(ref _name, value); }
-    public string Phone { get => _phone; set => SetProperty(ref _phone, value); }
-    public string Email { get => _email; set => SetProperty(ref _email, value); }
-    public string Notes { get => _notes; set => SetProperty(ref _notes, value); }
+    public string Name { get => _name; set => SetProperty(ref _name, value ?? string.Empty); }
+    public string Phone { get => _phone; set => SetProperty(ref _phone, value ?? string.Empty); }
+    public string Email { get => _email; set => SetProperty(ref _email, value ?? string.Empty); }
+    public string Notes { get => _notes; set => SetProperty(ref _notes, value ?? string.Empty); }
     public ICommand SaveCommand { get; }
 
     public async Task LoadAsync(string? id)

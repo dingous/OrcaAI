@@ -38,12 +38,12 @@ public sealed class SettingsViewModel : BaseViewModel
         RequestAccountDeletionCommand = new AsyncRelayCommand(() => OpenExternalAsync(AccountDeletionUri), () => !IsBusy);
     }
 
-    public string BusinessName { get => _businessName; set => SetProperty(ref _businessName, value); }
-    public string OwnerName { get => _ownerName; set => SetProperty(ref _ownerName, value); }
-    public string Document { get => _document; set => SetProperty(ref _document, value); }
-    public string Phone { get => _phone; set => SetProperty(ref _phone, value); }
-    public string Email { get => _email; set => SetProperty(ref _email, value); }
-    public string City { get => _city; set => SetProperty(ref _city, value); }
+    public string BusinessName { get => _businessName; set => SetProperty(ref _businessName, value ?? string.Empty); }
+    public string OwnerName { get => _ownerName; set => SetProperty(ref _ownerName, value ?? string.Empty); }
+    public string Document { get => _document; set => SetProperty(ref _document, value ?? string.Empty); }
+    public string Phone { get => _phone; set => SetProperty(ref _phone, value ?? string.Empty); }
+    public string Email { get => _email; set => SetProperty(ref _email, value ?? string.Empty); }
+    public string City { get => _city; set => SetProperty(ref _city, value ?? string.Empty); }
     public int DefaultValidityDays { get => _defaultValidityDays; set => SetProperty(ref _defaultValidityDays, Math.Clamp(value, 1, 365)); }
     public decimal DefaultLaborValue { get => _defaultLaborValue; set => SetProperty(ref _defaultLaborValue, Math.Max(0, value)); }
     public string UserName { get => _userName; private set => SetProperty(ref _userName, value); }

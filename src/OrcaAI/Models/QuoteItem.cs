@@ -12,7 +12,7 @@ public sealed class QuoteItem : ObservableObject
     public string Description
     {
         get => _description;
-        set => SetProperty(ref _description, value);
+        set => SetProperty(ref _description, value ?? string.Empty);
     }
 
     public decimal Quantity

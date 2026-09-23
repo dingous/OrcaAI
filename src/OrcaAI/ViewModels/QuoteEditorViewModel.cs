@@ -51,9 +51,9 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
     public Client? SelectedClient { get => _selectedClient; set => SetProperty(ref _selectedClient, value); }
     public string Number { get => _number; private set => SetProperty(ref _number, value); }
-    public string Title { get => _title; set => SetProperty(ref _title, value); }
-    public string Description { get => _description; set => SetProperty(ref _description, value); }
-    public string Notes { get => _notes; set => SetProperty(ref _notes, value); }
+    public string Title { get => _title; set => SetProperty(ref _title, value ?? string.Empty); }
+    public string Description { get => _description; set => SetProperty(ref _description, value ?? string.Empty); }
+    public string Notes { get => _notes; set => SetProperty(ref _notes, value ?? string.Empty); }
     public DateTime ValidUntil { get => _validUntil; set => SetProperty(ref _validUntil, value); }
 
     public decimal Discount
@@ -131,6 +131,9 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
     public void RemoveItem(QuoteItem item)
     {
+        if (IsBusy)
+            return;
+
         item.PropertyChanged -= OnItemPropertyChanged;
         Items.Remove(item);
         RaiseTotals();
@@ -165,6 +168,9 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
     private void AddItem()
     {
+        if (IsBusy)
+            return;
+
         var item = new QuoteItem { Description = "Novo item", Quantity = 1 };
         item.PropertyChanged += OnItemPropertyChanged;
         Items.Add(item);

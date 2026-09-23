@@ -27,7 +27,7 @@ public sealed class ClientsViewModel : BaseViewModel
         get => _search;
         set
         {
-            if (SetProperty(ref _search, value))
+            if (SetProperty(ref _search, value ?? string.Empty))
                 ApplyFilter();
         }
     }
