@@ -38,8 +38,8 @@
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
                                 <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource TextPrimary}" LineBreakMode="TailTruncation" />
-                                <Label Text="{Binding Phone}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
-                                <Label Text="{Binding Email}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Phone}" IsVisible="{Binding HasPhone}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Email}" IsVisible="{Binding HasEmail}" Style="{StaticResource Muted}" LineBreakMode="TailTruncation" />
                             </VerticalStackLayout>
                             <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="6">
                                 <Button Text="Editar" CommandParameter="{Binding .}" Clicked="OnEditClicked" Style="{StaticResource SecondaryButton}" Padding="12,8" MinimumHeightRequest="40" />

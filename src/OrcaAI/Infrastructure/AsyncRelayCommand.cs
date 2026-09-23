@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace OrcaAI.Infrastructure;
@@ -10,7 +11,7 @@ public sealed class AsyncRelayCommand : ICommand
 
     public AsyncRelayCommand(Func<Task> execute, Func<bool>? canExecute = null)
     {
-        _execute = execute;
+        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         _canExecute = canExecute;
     }
 
@@ -25,9 +26,19 @@ public sealed class AsyncRelayCommand : ICommand
 
         _isExecuting = true;
         RaiseCanExecuteChanged();
+
         try
         {
             await _execute();
+        }
+        catch (OperationCanceledException)
+        {
+            // Cancelamentos são esperados em autenticação, navegação e encerramento de tela.
+        }
+        catch (Exception ex)
+        {
+            // ICommand exige void; esta barreira evita que uma falha inesperada derrube o processo.
+            Debug.WriteLine(ex);
         }
         finally
         {

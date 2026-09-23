@@ -16,7 +16,7 @@ public sealed class QuotesViewModel : BaseViewModel
     public QuotesViewModel(IOrcaDataStore store)
     {
         _store = store;
-        NewCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync(nameof(QuoteEditorPage)));
+        NewCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(QuoteEditorPage)));
     }
 
     public ObservableCollection<Quote> Items { get; } = [];
@@ -38,15 +38,16 @@ public sealed class QuotesViewModel : BaseViewModel
             return;
 
         IsBusy = true;
+
         try
         {
-            ErrorMessage = string.Empty;
+            ClearError();
             _all = (await _store.GetQuotesAsync()).ToList();
             ApplyFilter();
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível carregar os orçamentos: " + ex.Message;
+            SetError("Não foi possível carregar os orçamentos agora. Tente novamente.", ex);
         }
         finally
         {
@@ -55,7 +56,7 @@ public sealed class QuotesViewModel : BaseViewModel
     }
 
     public Task EditAsync(Quote quote) =>
-        Shell.Current.GoToAsync($"{nameof(QuoteEditorPage)}?quoteId={quote.Id}");
+        NavigateAsync($"{nameof(QuoteEditorPage)}?quoteId={quote.Id}");
 
     public async Task DeleteAsync(Quote quote)
     {
@@ -63,20 +64,34 @@ public sealed class QuotesViewModel : BaseViewModel
             return;
 
         IsBusy = true;
+
         try
         {
-            ErrorMessage = string.Empty;
+            ClearError();
             await _store.DeleteQuoteAsync(quote.Id);
             _all.RemoveAll(x => x.Id == quote.Id);
             ApplyFilter();
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível excluir o orçamento: " + ex.Message;
+            SetError("Não foi possível excluir o orçamento. Tente novamente.", ex);
         }
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private async Task NavigateAsync(string route)
+    {
+        try
+        {
+            ClearError();
+            await Shell.Current.GoToAsync(route);
+        }
+        catch (Exception ex)
+        {
+            SetError("Não foi possível abrir o orçamento. Tente novamente.", ex);
         }
     }
 

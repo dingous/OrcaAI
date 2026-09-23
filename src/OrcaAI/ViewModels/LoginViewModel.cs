@@ -18,8 +18,10 @@ public sealed class LoginViewModel : BaseViewModel
 
     private async Task LoginAsync()
     {
-        ErrorMessage = string.Empty;
+        ClearError();
         IsBusy = true;
+        RaiseLoginState();
+
         try
         {
             await _authService.LoginWithGoogleAsync();
@@ -27,21 +29,27 @@ public sealed class LoginViewModel : BaseViewModel
         }
         catch (TaskCanceledException)
         {
-            ErrorMessage = "Login cancelado.";
+            SetError("Login cancelado.");
         }
         catch (OperationCanceledException)
         {
-            ErrorMessage = "O tempo para concluir o login terminou. Tente novamente.";
+            SetError("O tempo para concluir o login terminou. Tente novamente.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            SetError(ex.Message, ex);
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível entrar com Google. " + ex.Message;
+            SetError("Não foi possível entrar com Google agora. Tente novamente.", ex);
         }
         finally
         {
             IsBusy = false;
-            if (LoginCommand is AsyncRelayCommand command)
-                command.RaiseCanExecuteChanged();
+            RaiseLoginState();
         }
     }
+
+    private void RaiseLoginState() =>
+        (LoginCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
 }

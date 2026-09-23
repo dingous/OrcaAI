@@ -17,9 +17,9 @@ public sealed class DashboardViewModel : BaseViewModel
     public DashboardViewModel(IOrcaDataStore store)
     {
         _store = store;
-        NewQuoteCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync(nameof(QuoteEditorPage)));
-        AddClientCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync(nameof(ClientFormPage)));
-        ViewQuotesCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync("//app/quotes"));
+        NewQuoteCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(QuoteEditorPage)));
+        AddClientCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(ClientFormPage)));
+        ViewQuotesCommand = new AsyncRelayCommand(() => NavigateAsync("//app/quotes"));
     }
 
     public string Clients { get => _clients; private set => SetProperty(ref _clients, value); }
@@ -33,11 +33,13 @@ public sealed class DashboardViewModel : BaseViewModel
 
     public async Task LoadAsync()
     {
-        if (IsBusy) return;
+        if (IsBusy)
+            return;
+
         IsBusy = true;
         try
         {
-            ErrorMessage = string.Empty;
+            ClearError();
             var stats = await _store.GetDashboardStatsAsync();
             Clients = stats.Clients.ToString(CultureInfo.CurrentCulture);
             QuotesThisMonth = stats.QuotesThisMonth.ToString(CultureInfo.CurrentCulture);
@@ -46,11 +48,24 @@ public sealed class DashboardViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível carregar o resumo: " + ex.Message;
+            SetError("Não foi possível carregar o resumo agora. Tente novamente.", ex);
         }
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private async Task NavigateAsync(string route)
+    {
+        try
+        {
+            ClearError();
+            await Shell.Current.GoToAsync(route);
+        }
+        catch (Exception ex)
+        {
+            SetError("Não foi possível abrir esta tela. Tente novamente.", ex);
         }
     }
 }

@@ -67,6 +67,11 @@
         <Setter Property="CornerRadius" Value="14" />
         <Setter Property="Padding" Value="18,13" />
         <Setter Property="MinimumHeightRequest" Value="50" />
+        <Style.Triggers>
+            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.55" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="SecondaryButton" TargetType="Button">
@@ -76,6 +81,11 @@
         <Setter Property="CornerRadius" Value="14" />
         <Setter Property="Padding" Value="18,13" />
         <Setter Property="MinimumHeightRequest" Value="48" />
+        <Style.Triggers>
+            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.55" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="GoogleButton" TargetType="Button">
@@ -86,6 +96,11 @@
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="CornerRadius" Value="14" />
         <Setter Property="MinimumHeightRequest" Value="52" />
+        <Style.Triggers>
+            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.55" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="DangerButton" TargetType="Button">
@@ -94,6 +109,11 @@
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="CornerRadius" Value="14" />
         <Setter Property="MinimumHeightRequest" Value="48" />
+        <Style.Triggers>
+            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.55" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="Input" TargetType="Entry">

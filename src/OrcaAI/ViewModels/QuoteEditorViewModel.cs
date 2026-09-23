@@ -80,7 +80,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            ErrorMessage = string.Empty;
+            ClearError();
             _profile = await _store.GetBusinessProfileAsync();
             var clients = await _store.GetClientsAsync();
             Clients.Clear();
@@ -121,7 +121,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível abrir o orçamento: " + ex.Message;
+            SetError("Não foi possível abrir o orçamento agora. Tente novamente.", ex);
         }
         finally
         {
@@ -138,7 +138,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
     private async Task GenerateDraftAsync()
     {
-        ErrorMessage = string.Empty;
+        ClearError();
         if (string.IsNullOrWhiteSpace(Description))
         {
             ErrorMessage = "Descreva o serviço antes de gerar o rascunho.";
@@ -155,7 +155,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível gerar o rascunho: " + ex.Message;
+            SetError("Não foi possível gerar o rascunho agora. Tente novamente.", ex);
         }
         finally
         {
@@ -173,7 +173,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
 
     private async Task<Quote?> SaveAsync(bool navigateBack)
     {
-        ErrorMessage = string.Empty;
+        ClearError();
 
         if (string.IsNullOrWhiteSpace(Number))
         {
@@ -205,6 +205,12 @@ public sealed class QuoteEditorViewModel : BaseViewModel
             return null;
         }
 
+        if (ValidUntil.Date < DateTime.Today)
+        {
+            SetError("A validade do orçamento não pode estar no passado.");
+            return null;
+        }
+
         var subtotal = Items.Sum(x => x.Total);
         if (Discount > subtotal)
         {
@@ -220,7 +226,12 @@ public sealed class QuoteEditorViewModel : BaseViewModel
             quote.ClientName = SelectedClient?.Name ?? _loaded?.ClientName ?? string.Empty;
             quote.Title = Title.Trim();
             quote.Description = Description.Trim();
-            quote.Items = Items.ToList();
+            quote.Items = Items.Select(x => new QuoteItem
+            {
+                Description = x.Description.Trim(),
+                Quantity = x.Quantity,
+                UnitPrice = x.UnitPrice
+            }).ToList();
             quote.Discount = Discount;
             quote.Notes = Notes.Trim();
             quote.ValidUntil = ValidUntil;
@@ -235,7 +246,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível salvar o orçamento: " + ex.Message;
+            SetError("Não foi possível salvar o orçamento. Tente novamente.", ex);
             return null;
         }
         finally
@@ -262,7 +273,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível gerar/compartilhar o PDF: " + ex.Message;
+            SetError("Não foi possível gerar ou compartilhar o PDF. Tente novamente.", ex);
         }
         finally
         {

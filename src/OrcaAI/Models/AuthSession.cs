@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace OrcaAI.Models;
 
 public sealed class AuthSession
@@ -8,10 +10,12 @@ public sealed class AuthSession
     public string Email { get; set; } = string.Empty;
     public string PictureUrl { get; set; } = string.Empty;
 
+    [JsonIgnore]
     public bool IsValid =>
         !string.IsNullOrWhiteSpace(AccessToken)
         && ExpiresAt > DateTimeOffset.UtcNow.AddMinutes(1);
 
+    [JsonIgnore]
     public string Initials
     {
         get

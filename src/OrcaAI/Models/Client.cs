@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace OrcaAI.Models;
 
 public sealed class Client
@@ -10,6 +12,13 @@ public sealed class Client
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
+    [JsonIgnore]
+    public bool HasPhone => !string.IsNullOrWhiteSpace(Phone);
+
+    [JsonIgnore]
+    public bool HasEmail => !string.IsNullOrWhiteSpace(Email);
+
+    [JsonIgnore]
     public string Initials
     {
         get

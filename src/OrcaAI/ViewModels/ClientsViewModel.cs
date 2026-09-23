@@ -16,7 +16,7 @@ public sealed class ClientsViewModel : BaseViewModel
     public ClientsViewModel(IOrcaDataStore store)
     {
         _store = store;
-        AddCommand = new AsyncRelayCommand(() => Shell.Current.GoToAsync(nameof(ClientFormPage)));
+        AddCommand = new AsyncRelayCommand(() => NavigateAsync(nameof(ClientFormPage)));
     }
 
     public ObservableCollection<Client> Items { get; } = [];
@@ -38,15 +38,16 @@ public sealed class ClientsViewModel : BaseViewModel
             return;
 
         IsBusy = true;
+
         try
         {
-            ErrorMessage = string.Empty;
+            ClearError();
             _all = (await _store.GetClientsAsync()).ToList();
             ApplyFilter();
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível carregar os clientes: " + ex.Message;
+            SetError("Não foi possível carregar os clientes agora. Tente novamente.", ex);
         }
         finally
         {
@@ -55,7 +56,7 @@ public sealed class ClientsViewModel : BaseViewModel
     }
 
     public Task EditAsync(Client client) =>
-        Shell.Current.GoToAsync($"{nameof(ClientFormPage)}?clientId={client.Id}");
+        NavigateAsync($"{nameof(ClientFormPage)}?clientId={client.Id}");
 
     public async Task DeleteAsync(Client client)
     {
@@ -63,20 +64,34 @@ public sealed class ClientsViewModel : BaseViewModel
             return;
 
         IsBusy = true;
+
         try
         {
-            ErrorMessage = string.Empty;
+            ClearError();
             await _store.DeleteClientAsync(client.Id);
             _all.RemoveAll(x => x.Id == client.Id);
             ApplyFilter();
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível excluir o cliente: " + ex.Message;
+            SetError("Não foi possível excluir o cliente. Tente novamente.", ex);
         }
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private async Task NavigateAsync(string route)
+    {
+        try
+        {
+            ClearError();
+            await Shell.Current.GoToAsync(route);
+        }
+        catch (Exception ex)
+        {
+            SetError("Não foi possível abrir o cliente. Tente novamente.", ex);
         }
     }
 

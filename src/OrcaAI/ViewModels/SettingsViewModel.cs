@@ -61,6 +61,7 @@ public sealed class SettingsViewModel : BaseViewModel
     }
 
     public bool HasSuccess => !string.IsNullOrWhiteSpace(SuccessMessage);
+
     public ICommand SaveCommand { get; }
     public ICommand LogoutCommand { get; }
     public ICommand OpenPrivacyCommand { get; }
@@ -73,7 +74,9 @@ public sealed class SettingsViewModel : BaseViewModel
             return;
 
         IsBusy = true;
-        ErrorMessage = string.Empty;
+        ClearError();
+        SuccessMessage = string.Empty;
+
         try
         {
             var profile = await _store.GetBusinessProfileAsync();
@@ -96,7 +99,7 @@ public sealed class SettingsViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível carregar seus dados. " + ex.Message;
+            SetError("Não foi possível carregar seus dados agora. Tente novamente.", ex);
         }
         finally
         {
@@ -107,17 +110,25 @@ public sealed class SettingsViewModel : BaseViewModel
 
     private async Task SaveAsync()
     {
-        ErrorMessage = string.Empty;
+        ClearError();
         SuccessMessage = string.Empty;
 
         if (string.IsNullOrWhiteSpace(BusinessName))
         {
-            ErrorMessage = "Informe o nome da empresa ou profissional.";
+            SetError("Informe o nome da empresa ou profissional.");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Email)
+            && !Email.Contains('@', StringComparison.Ordinal))
+        {
+            SetError("Informe um e-mail válido ou deixe o campo em branco.");
             return;
         }
 
         IsBusy = true;
         RaiseCommandStates();
+
         try
         {
             await _store.SaveBusinessProfileAsync(new BusinessProfile
@@ -131,11 +142,12 @@ public sealed class SettingsViewModel : BaseViewModel
                 DefaultValidityDays = DefaultValidityDays,
                 DefaultLaborValue = DefaultLaborValue
             });
+
             SuccessMessage = "Dados salvos.";
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível salvar seus dados. " + ex.Message;
+            SetError("Não foi possível salvar seus dados. Tente novamente.", ex);
         }
         finally
         {
@@ -146,12 +158,18 @@ public sealed class SettingsViewModel : BaseViewModel
 
     private async Task LogoutAsync()
     {
+        ClearError();
         IsBusy = true;
         RaiseCommandStates();
+
         try
         {
             await _authService.LogoutAsync();
             await Shell.Current.GoToAsync("//login");
+        }
+        catch (Exception ex)
+        {
+            SetError("Não foi possível sair da conta agora. Tente novamente.", ex);
         }
         finally
         {
@@ -162,15 +180,16 @@ public sealed class SettingsViewModel : BaseViewModel
 
     private async Task OpenExternalAsync(Uri uri)
     {
-        ErrorMessage = string.Empty;
+        ClearError();
+
         try
         {
             if (!await Launcher.Default.OpenAsync(uri))
-                ErrorMessage = "Não foi possível abrir a página no navegador.";
+                SetError("Não foi possível abrir a página no navegador.");
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Não foi possível abrir a página. " + ex.Message;
+            SetError("Não foi possível abrir a página no navegador. Tente novamente.", ex);
         }
     }
 

@@ -25,6 +25,10 @@ public sealed class Quote
     public decimal Total => Math.Max(0, Subtotal - Discount);
 
     [JsonIgnore]
+    public string ClientDisplayName =>
+        string.IsNullOrWhiteSpace(ClientName) ? "Sem cliente" : ClientName;
+
+    [JsonIgnore]
     public string StatusLabel => Status switch
     {
         QuoteStatus.Draft => "Rascunho",

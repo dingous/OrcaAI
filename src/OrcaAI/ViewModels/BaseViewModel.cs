@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using OrcaAI.Infrastructure;
 
 namespace OrcaAI.ViewModels;
@@ -30,4 +31,14 @@ public abstract class BaseViewModel : ObservableObject
     }
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+    protected void ClearError() => ErrorMessage = string.Empty;
+
+    protected void SetError(string userMessage, Exception? exception = null)
+    {
+        if (exception is not null)
+            Debug.WriteLine(exception);
+
+        ErrorMessage = userMessage;
+    }
 }
