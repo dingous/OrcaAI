@@ -41,11 +41,26 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         await MutateAsync(data =>
         {
             var index = data.Clients.FindIndex(x => x.Id == client.Id);
-            client.UpdatedAtUtc = DateTime.UtcNow;
+            var previousName = index >= 0 ? data.Clients[index].Name : null;
+            var now = DateTime.UtcNow;
+
+            client.UpdatedAtUtc = now;
+
             if (index >= 0)
                 data.Clients[index] = CloneClient(client);
             else
                 data.Clients.Add(CloneClient(client));
+
+            if (index >= 0
+                && !string.Equals(previousName, client.Name, StringComparison.CurrentCulture)
+                && !string.IsNullOrWhiteSpace(client.Name))
+            {
+                foreach (var quote in data.Quotes.Where(x => x.ClientId == client.Id))
+                {
+                    quote.ClientName = client.Name;
+                    quote.UpdatedAtUtc = now;
+                }
+            }
         }, cancellationToken);
     }
 
@@ -140,6 +155,8 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         try
         {
             var filePath = await ResolveFilePathUnsafeAsync(cancellationToken);
+            await using var processLock = await AcquireProcessLockAsync(filePath, cancellationToken);
+
             _cache = null;
             _cachePath = filePath;
 
@@ -147,7 +164,7 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
             {
                 _cache = new DataEnvelope();
                 await PersistUnsafeAsync(_cache, filePath, cancellationToken);
-                return _cache;
+                return CloneEnvelope(_cache);
             }
 
             try
@@ -166,7 +183,7 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
                 await PersistUnsafeAsync(_cache, filePath, cancellationToken);
             }
 
-            return _cache;
+            return CloneEnvelope(_cache);
         }
         finally
         {
@@ -180,6 +197,8 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
         try
         {
             var filePath = await ResolveFilePathUnsafeAsync(cancellationToken);
+            await using var processLock = await AcquireProcessLockAsync(filePath, cancellationToken);
+
             _cache = null;
             _cachePath = filePath;
 
@@ -234,6 +253,48 @@ public sealed class JsonOrcaDataStore : IOrcaDataStore
 
         return scopedPath;
     }
+
+    private static async Task<FileStream> AcquireProcessLockAsync(
+        string filePath,
+        CancellationToken cancellationToken)
+    {
+        var lockPath = filePath + ".lock";
+        Directory.CreateDirectory(Path.GetDirectoryName(lockPath)!);
+
+        IOException? lastError = null;
+
+        for (var attempt = 0; attempt < 40; attempt++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                return new FileStream(
+                    lockPath,
+                    FileMode.OpenOrCreate,
+                    FileAccess.ReadWrite,
+                    FileShare.None,
+                    bufferSize: 1,
+                    useAsync: true);
+            }
+            catch (IOException ex)
+            {
+                lastError = ex;
+                await Task.Delay(50, cancellationToken);
+            }
+        }
+
+        throw new IOException(
+            "Não foi possível acessar os dados locais porque outra instância ainda está gravando.",
+            lastError);
+    }
+
+    private static DataEnvelope CloneEnvelope(DataEnvelope source) => new()
+    {
+        Clients = source.Clients.Select(CloneClient).ToList(),
+        Quotes = source.Quotes.Select(CloneQuote).ToList(),
+        BusinessProfile = CloneProfile(source.BusinessProfile)
+    };
 
     private static void BackupCorruptFile(string filePath)
     {

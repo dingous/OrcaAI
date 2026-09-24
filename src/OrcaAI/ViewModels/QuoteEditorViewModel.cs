@@ -144,7 +144,7 @@ public sealed class QuoteEditorViewModel : BaseViewModel
                 return;
             }
 
-            Number = $"ORC-{DateTime.Now:yyMMdd-HHmmssfff}";
+            Number = $"ORC-{DateTime.Now:yyMMdd-HHmmss}-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}";
             ValidUntil = DateTime.Today.AddDays(Math.Clamp(_profile.DefaultValidityDays, 1, 365));
             SelectedStatus = StatusOptions[0];
             ReplaceItems([]);
