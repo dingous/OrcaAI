@@ -127,6 +127,8 @@ public sealed class SimplePdfService : IPdfService
         var normalized = text
             .Replace("\r", " ")
             .Replace("\n", " ")
+            .Replace("\u00A0", " ")
+            .Replace("…", "...")
             .Replace('–', '-')
             .Replace('—', '-')
             .Replace('“', '"')

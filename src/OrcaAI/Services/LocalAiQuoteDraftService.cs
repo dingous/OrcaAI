@@ -104,7 +104,7 @@ public sealed partial class LocalAiQuoteDraftService : IAiQuoteDraftService
     private static string Capitalize(string value) =>
         value.Length == 0 ? value : char.ToUpper(value[0]) + value[1..];
 
-    [GeneratedRegex(@"(?<![\d\.,])(?<qty>\d+(?:[\.,]\d+)?)\s+(?!v(?:olts?)?\b|w(?:atts?)?\b|hz\b)", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"(?<![\d\.,])(?<qty>\d+(?:[\.,]\d+)?)\s+(?!v(?:olts?)?\b|w(?:atts?)?\b|kw\b|kwh\b|hz\b|a(?:mperes?|mps?)?\b|mm(?:²|2)?\b|cm(?:²|2)?\b|m(?:²|2|etros?)?\b|kg\b|g\b|ml\b|l(?:itros?)?\b|pol(?:egadas?)?\b|%)", RegexOptions.IgnoreCase)]
     private static partial Regex QuantityRegex();
 
     [GeneratedRegex(@"^(?:de|do|da|dos|das|um|uma|uns|umas)\s+", RegexOptions.IgnoreCase)]
